@@ -4,7 +4,7 @@
   <h1>{% block title %}Hello {{ g.user['username'] }}{% endblock %}</h1>
   {% if g.user %}
     <a class="action" href="{{ url_for('request.send') }}">New Request</a>
-    <a class="action" href="{{ url_for('request.upload_vid') }}">Upload Video</a>
+    <a class="action" href="{{ url_for('video.upload_vid') }}">Upload Video</a>
     <a class="action" href="{{ url_for('request.modify_location') }}">Define Locations</a>
   {% endif %}
 {% endblock %}
