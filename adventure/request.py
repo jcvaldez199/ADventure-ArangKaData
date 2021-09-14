@@ -3,8 +3,8 @@ from flask import (
 )
 from werkzeug.exceptions import abort
 import json
-from flaskr.auth import login_required
-from flaskr.db import get_db
+from adventure.auth import login_required
+from adventure.db import get_db, db_execute
 
 bp = Blueprint('request', __name__)
 
@@ -14,30 +14,19 @@ def index():
 
     if user_id is None:
        return redirect(url_for('auth.login'))
-    db = get_db()
-    requests = db.execute(
-        'SELECT *'
-        ' FROM request r'
-        ' WHERE userid = ? ',
-        (g.user['id'],)
-    ).fetchall()
+    command = 'SELECT * FROM request WHERE userid = %(userid)s '
+    params = {'userid':g.user['id']} 
+    requests = db_execute(command, params).fetchall()
     return render_template('request/index.html', requests=requests)
 
 @bp.route('/send', methods=('GET', 'POST'))
 @login_required
 def send():
-    db = get_db()
-    videos = db.execute(
-        'SELECT filename'
-        ' FROM video'
-        ' WHERE userid = ? ',
-        (g.user['id'],)
-    ).fetchall()
-
-    locations = db.execute(
-        'SELECT *'
-        ' FROM location'
-    ).fetchall()
+    loc_command = 'SELECT * FROM location WHERE userid = %(userid)s '
+    vid_command = 'SELECT filename FROM video WHERE userid = %(userid)s '
+    params = {'userid':g.user['id']} 
+    videos = db_execute(vid_command, params).fetchall()
+    locations = db_execute(loc_command, params).fetchall()
 
     if request.method == 'POST':
         video = request.form['video']
@@ -51,25 +40,24 @@ def send():
             flash(error)
 
         else:
-            db = get_db()
-            db.execute(
-                'INSERT INTO request (routename, userid, videohash, locname)'
-                ' VALUES (?, ?, ?, ?)',
-                (location['routename'], g.user['id'], get_vid_hash(video) ,location['locname'])
-            )
-            db.commit()
+            command = """ INSERT INTO request (routename, userid, videohash, locname)
+                          VALUES (%(routename)s, %(userid)s, %(videohash)s, %(locname)s);
+                      """
+            params = {'routename':location['routename'],
+                      'userid':g.user['id'],
+                      'videohash':get_vid_hash(video),
+                      'locname':location['locname']}
+            db_execute(command, params, True)
             return redirect(url_for('request.index'))
 
     return render_template('request/send.html', locations=locations, videos=videos)
 
 def get_vid_hash(fname):
-    vid = get_db().execute(
-        'SELECT hash, userid'
-        ' FROM video v'
-        ' WHERE v.filename = ? AND v.userid = ?',
-        (fname,g.user['id'],)
-    ).fetchone()
-
+    command = """ SELECT hash, userid
+                  FROM video
+                  WHERE filename = %(filename)s AND userid = %(userid)s;"""
+    params = {'filename':fname, 'userid':g.user['id']}
+    vid = db_execute(command, params).fetchone()
     if vid is None:
         abort(404, f"Video {fname} doesn't exist.")
 
@@ -79,28 +67,17 @@ def get_vid_hash(fname):
     return vid['hash']
 
 def get_request(id):
-    req = get_db().execute(
-        'SELECT *'
-        ' FROM request'
-        ' WHERE id = ? AND userid = ?',
-        (id,g.user['id'],)
-    ).fetchone()
-
+    command = """ SELECT *
+                  FROM request
+                  WHERE id = %(id)s AND userid = %(userid)s;"""
+    params = {'id':id, 'userid':g.user['id']}
+    req = db_execute(command, params).fetchone()
     return req
 
 def get_routes():
-    routes = get_db().execute(
-        'SELECT *'
-        ' FROM route'
-    ).fetchall()
+    command = "SELECT * FROM route"
+    routes = db_execute(command, {}).fetchall()
     return routes
-
-def get_locations():
-    locations = get_db().execute(
-        'SELECT *'
-        ' FROM location'
-    ).fetchall()
-    return locations
 
 @bp.route('/<int:id>/show')
 @login_required
@@ -108,33 +85,6 @@ def show(id):
     req = get_request(id)
 
     return jsonify(dict(req))
-
-# should be in video blueprint
-
-@bp.route('/upload_vid', methods=('GET', 'POST'))
-@login_required
-def upload_vid():
-    db = get_db()
-    if request.method == 'POST':
-        fname = request.form['filename']
-        error = None
-
-        if not fname:
-            error = 'missing field.'
-
-        if error is not None:
-            flash(error)
-
-        else:
-            db.execute(
-                # filename is the hash for now
-                'INSERT INTO video (filename, userid, hash)'
-                ' VALUES (?, ?, ?)',
-                (fname, g.user['id'], fname)
-            )
-            db.commit()
-            return redirect(url_for('request.send'))
-    return render_template('video/upload.html')
 
 # should be in location blueprint
 
@@ -159,9 +109,17 @@ def modify_location():
             db.execute(
                 # filename is the hash for now
                 'INSERT INTO location (routename, locname)'
-                ' VALUES (?, ?)',
+                ' VALUES (%s, %s)',
                 (rname, lname)
             )
             db.commit()
             return redirect(url_for('request.send'))
     return render_template('location/create.html', routes=routes, locations=locations)
+
+def get_locations():
+    locations = get_db().execute(
+        'SELECT *'
+        ' FROM location'
+    ).fetchall()
+    return locations
+

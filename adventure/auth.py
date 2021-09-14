@@ -1,11 +1,12 @@
 import functools
+import psycopg2
 
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from flaskr.db import get_db
+from adventure.db import get_db, db_execute
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -24,14 +25,13 @@ def register():
 
         if error is None:
             try:
-                db.execute(
-                    "INSERT INTO user (username, password) VALUES (?, ?)",
-	            # temporarily disable password hashing
-                    #(username, generate_password_hash(password)),
-                    (username, password),
-                )
-                db.commit()
-            except db.IntegrityError:
+                command = "INSERT INTO customer (username, password) VALUES (%(username)s, %(password)s);"
+	        # temporarily disable password hashing
+                #(username, generate_password_hash(password)),
+                params = {'username':username, 'password':password}
+                db_execute(command, params, True).close()
+            #except db.IntegrityError:
+            except:
                 error = f"User {username} is already registered."
             else:
                 return redirect(url_for("auth.login"))
@@ -45,18 +45,22 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        db = get_db()
         error = None
-        user = db.execute(
-            'SELECT * FROM user WHERE username = ?', (username,)
-        ).fetchone()
+         
+        command = 'SELECT * FROM customer WHERE username = %(username)s'
+        params = {'username':username} 
+        cursor = db_execute(command, params)
+        user = cursor.fetchone()
 
 	# temporarily disable password hashing
-        #if user is None:
-        #    error = 'Incorrect username.'
+        if user is None:
+            error = 'Incorrect username.'
+        elif not user['password'] == password:
+            error = 'Incorrect password.'
         #elif not check_password_hash(user['password'], password):
         #    error = 'Incorrect password.'
 
+        cursor.close()
         if error is None:
             session.clear()
             session['user_id'] = user['id']
@@ -73,9 +77,11 @@ def load_logged_in_user():
     if user_id is None:
         g.user = None
     else:
-        g.user = get_db().execute(
-            'SELECT * FROM user WHERE id = ?', (user_id,)
-        ).fetchone()
+        command = 'SELECT * FROM customer WHERE id = %(id)s'
+        params = {'id':user_id} 
+        cursor = db_execute(command, params)
+        g.user = cursor.fetchone()
+        cursor.close()
 
 @bp.route('/logout')
 def logout():
