@@ -64,6 +64,8 @@ def login():
         if error is None:
             session.clear()
             session['user_id'] = user['id']
+            if user['isadmin']:
+               return redirect(url_for('approval.index')) 
             return redirect(url_for('index'))
 
         flash(error)

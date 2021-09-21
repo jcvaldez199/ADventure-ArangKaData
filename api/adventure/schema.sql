@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS customer;
 
 CREATE TABLE customer (
   id SERIAL PRIMARY KEY,
+  isAdmin BOOLEAN DEFAULT False,
   username VARCHAR(15) UNIQUE NOT NULL,
   password TEXT NOT NULL
 );
@@ -19,10 +20,8 @@ CREATE TABLE route (
 CREATE TABLE video (
   filename VARCHAR(30),
   userid INTEGER, 
-  /* hash BINARY(64), */
-  hash TEXT UNIQUE,
   FOREIGN KEY (userid) REFERENCES customer (id),
-  PRIMARY KEY (hash)
+  PRIMARY KEY (userid, filename)
 );
 
 CREATE TABLE location (
@@ -37,17 +36,21 @@ CREATE TABLE location (
 CREATE TABLE request (
   id SERIAL PRIMARY KEY,
   routename TEXT NOT NULL,
-  userid INTEGER, 
-  /* videohash BINARY(64), */ 
-  videohash TEXT UNIQUE,
-  locname VARCHAR(30),
+  userid INTEGER NOT NULL, 
+  videoname VARCHAR(30) NOT NULL,
+  locname VARCHAR(30) NOT NULL,
+  date_decision TIMESTAMP,
+  date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  approved BOOLEAN DEFAULT False,
+  remarks TEXT,
   FOREIGN KEY (routename) REFERENCES route (name),
   FOREIGN KEY (userid) REFERENCES customer (id),
-  FOREIGN KEY (videohash) REFERENCES video (hash),
-  FOREIGN KEY (userid,routename,locname) REFERENCES location (userid,routename,locname)
+  FOREIGN KEY (userid, videoname) REFERENCES video (userid, filename),
+  FOREIGN KEY (userid, routename, locname) REFERENCES location (userid, routename, locname)
 );
 
 INSERT INTO customer (username, password) VALUES ('test','test');
+INSERT INTO customer (username, password, isAdmin) VALUES ('admin','admin', TRUE);
 
 INSERT INTO route (name) VALUES ('Route A');
 INSERT INTO route (name) VALUES ('Route B');
@@ -57,8 +60,8 @@ INSERT INTO location (userid, locname, routename) VALUES (1,'Location Beta','Rou
 INSERT INTO location (userid, locname, routename) VALUES (1,'Location Gamma','Route B');
 INSERT INTO location (userid, locname, routename) VALUES (1,'Location Sigma','Route B');
 
-INSERT INTO video (filename, userid, hash) VALUES ('Tragedy.mp4', 1, 'tragedy-hash-test');
-INSERT INTO video (filename, userid, hash) VALUES ('Comedy.avi', 1, 'comedy-hash-test');
-INSERT INTO video (filename, userid, hash) VALUES ('Drama.webm', 1, 'drama-hash-test');
+INSERT INTO video (filename, userid) VALUES ('top_500_cheese.mp4', 1);
 
+INSERT INTO request (routename, userid, videoname, locname) VALUES ('Route A', 1, 'top_500_cheese.mp4', 'Location Alpha');
+INSERT INTO request (routename, userid, videoname, locname) VALUES ('Route B', 1, 'top_500_cheese.mp4', 'Location Gamma');
 

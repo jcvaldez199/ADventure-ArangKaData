@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for, jsonify, session
+    Blueprint, flash, g, redirect, render_template, request, url_for, jsonify, session, send_file, current_app
 )
 from werkzeug.exceptions import abort
 import json
@@ -40,15 +40,49 @@ def send():
             flash(error)
 
         else:
-            command = """ INSERT INTO request (routename, userid, videohash, locname)
-                          VALUES (%(routename)s, %(userid)s, %(videohash)s, %(locname)s);
+            command = """ INSERT INTO request (ruestoutename, userid, videoname, locname)
+                          VALUES (%(routename)s, %(userid)s, %(videoname)s, %(locname)s);
                       """
             params = {'routename':location['routename'],
                       'userid':g.user['id'],
-                      'videohash':get_vid_hash(video),
+                      'videoname':video,
                       'locname':location['locname']}
             db_execute(command, params, True)
             return redirect(url_for('request.index'))
+
+    return render_template('request/send.html', locations=locations, videos=videos)
+
+@bp.route('/<int:id>/edit', methods=('GET', 'POST'))
+@login_required
+def edit(id):
+    loc_command = 'SELECT * FROM location WHERE userid = %(userid)s '
+    vid_command = 'SELECT filename FROM video WHERE userid = %(userid)s '
+    params = {'userid':g.user['id']} 
+    videos = db_execute(vid_command, params).fetchall()
+    locations = db_execute(loc_command, params).fetchall()
+
+    if request.method == 'POST':
+        video = request.form['video']
+        location = json.loads(request.form['location'])
+        error = None
+
+        if (not video) or (not location):
+            error = 'missing field.'
+
+        if error is not None:
+            flash(error)
+
+        else:
+            command = """ UPDATE request SET (routename, videoname, locname)
+                                           = (%(routename)s, %(videoname)s, %(locname)s)
+                          WHERE id = %(id)s;
+                      """
+            params = {'routename':location['routename'],
+                      'videoname':video,
+                      'id':id,
+                      'locname':location['locname']}
+            db_execute(command, params, True)
+            return redirect(url_for('request.show', id=id))
 
     return render_template('request/send.html', locations=locations, videos=videos)
 
@@ -79,12 +113,20 @@ def get_routes():
     routes = db_execute(command, {}).fetchall()
     return routes
 
-@bp.route('/<int:id>/show')
+@bp.route('/<int:id>/show', methods=('GET', 'POST'))
 @login_required
 def show(id):
     req = get_request(id)
+    if request.method == 'POST':
+       command = """ UPDATE request SET (date_created)
+                     = (CURRENT_TIMESTAMP)
+                     WHERE id = %(id)s;
+                 """
+       params = {'id':id}
+       db_execute(command, params, True)
+       return redirect(url_for('request.index'))
 
-    return jsonify(dict(req))
+    return render_template('request/show.html', request=req)
 
 # should be in location blueprint
 

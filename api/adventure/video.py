@@ -13,7 +13,18 @@ import os
 bp = Blueprint('video', __name__, url_prefix='/video')
 
 
-@bp.route('/', methods=('GET', 'POST'))
+@bp.route('/')
+@login_required
+def index():
+    db = get_db()
+    command = """SELECT filename FROM video 
+                 WHERE userid = %(userid)s;
+              """
+    params = {'userid':g.user['id']} 
+    videos = db_execute(command, params).fetchall()
+    return render_template('video/index.html', videos=videos)
+
+@bp.route('/upload', methods=('GET', 'POST'))
 @login_required
 def upload_vid():
     db = get_db()
@@ -28,10 +39,10 @@ def upload_vid():
             return redirect(request.url)
         else:
             fname = file.filename
-            command = """INSERT INTO video (filename, userid, hash)
-                         VALUES (%(filename)s, %(userid)s, %(hash)s);
+            command = """INSERT INTO video (filename, userid)
+                         VALUES (%(filename)s, %(userid)s);
                       """
-            params = {'filename':fname,'userid':g.user['id'],'hash':fname} 
+            params = {'filename':fname,'userid':g.user['id']} 
             db_execute(command, params, True)
             filename = secure_filename(file.filename)
             file.save(os.path.join(current_app.config['VIDEOS'], filename))
