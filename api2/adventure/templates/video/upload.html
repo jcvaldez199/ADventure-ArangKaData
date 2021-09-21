@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Upload Video{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  {% if filename %}
+   <div style="margin: 10px auto;">
+    <video autoplay="autoplay" controls="controls" preload="preload">
+     <source src="{{ url_for('video.display_vid', filename=filename) }}" type="video/mp4"></source>
+    </video>
+   </div>
+  {% endif %}
+  <form method="post" enctype="multipart/form-data">
+    <input type="file" name="file" autocomplete="off" required>
+    <input type="submit" value="Upload">
+  </form>
+{% endblock %}

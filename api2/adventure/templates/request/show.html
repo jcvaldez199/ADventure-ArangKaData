@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Hello {{ g.user['username'] }}{% endblock %}</h1>
+  {% if g.user %}
+    <a class="action" href="{{ url_for('request.index') }}">Return to Index</a>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <header>
+    <h1>Request {{ request['id'] }}</h1>
+    {% if not request['approved'] %}<a class="action" href="{{ url_for('request.edit',id=request['id']) }}">Edit</a>{% endif %}
+  </header>
+ <dl>
+   <dt>Route and Location</dt>
+     <dd>Route : {{ request['routename'] }}, Location : {{ request['locname']}}</dd>
+   <dt>Date Submitted</dt>
+     <dd>{{ request['date_created'] }}</dd>
+   <dt>Last Admin Screening</dt>
+     <dd>{{ request['date_decision'] }}</dd>
+   <dt>Video</dt>
+     <dd>
+       <video autoplay="autoplay" controls="controls" preload="preload">
+        <source src="{{ url_for('video.display_vid', filename=request['videoname']) }}" type="video/mp4"></source>
+       </video>
+    </dd>
+   <dt>Remarks</dt>
+     <dd>{{ request['remarks'] }}</dd>
+ </dl> 
+  {% if not request['approved'] %}
+    <form method="post">
+       <input type="submit" value="Plead">
+    </form>
+  {% endif %}
+{% endblock %}
