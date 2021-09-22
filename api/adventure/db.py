@@ -20,10 +20,8 @@ def close_db(e=None):
 
 def init_db():
     cursor = get_db().cursor()
-    
     with current_app.open_resource('schema.sql') as script:
         cursor.execute(script.read().decode('utf8'))
-   
     cursor.close()
 
 
