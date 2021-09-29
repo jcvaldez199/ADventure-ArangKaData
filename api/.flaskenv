@@ -1,2 +1,2 @@
-FLASK_APP=adventure
+FLASK_APP=adventure_api
 FLASK_ENV=development

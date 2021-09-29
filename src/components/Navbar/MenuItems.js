@@ -1,8 +1,7 @@
 import { Home } from '../Home/Home'
 import { Customer } from '../Customer/Customer'
 import { Video } from '../Video/Video'
-import { Request } from '../Request/Request'
-import { Register } from '../Register/Register'
+import Request from '../Request/Request'
 
 export const MenuItems = [
     {
@@ -27,12 +26,6 @@ export const MenuItems = [
         title: 'Requests',
         url: '/request',
         comp: Request,
-        cName: 'nav-links'
-    },
-    {
-        title: 'Register',
-        url: '/register',
-        comp: Register,
         cName: 'nav-links'
     },
 ]
