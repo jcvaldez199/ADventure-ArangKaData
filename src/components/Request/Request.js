@@ -7,7 +7,7 @@ import SendForm from './SendForm'
 // Move these to a config file
 const reqUrl = "http://localhost:3000/request_api/"
 const reqSendUrl = "http://localhost:3000/request_api/send"
-const vidDisplayUrl = "http://localhost:3000/video/display/"
+const vidDisplayUrl = "http://localhost:3000/video_api/display/"
 
 function Request() {
   const [req, setReq] = useState([{}]);

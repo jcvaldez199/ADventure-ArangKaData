@@ -22,9 +22,9 @@ def index():
               """
     params = {'userid':g.user['id']}
     videos = db_execute(command, params).fetchall()
-    return render_template('video/index.html', videos=videos)
+    return jsonify(videos)
 
-@bp.route('/upload', methods=('GET', 'POST'))
+@bp.route('/upload', methods=['POST'])
 @login_required
 def upload_vid():
     db = get_db()
@@ -47,7 +47,6 @@ def upload_vid():
             file.save(os.path.join(current_app.config['VIDEOS'], filename))
             flash('Video successfully uploaded and displayed below')
             return render_template('video/upload.html', filename=filename)
-    return render_template('video/upload.html')
 
 # SHOULD APPLY VALIDATION FIXES CURRENTLY THIS IS VERY DANGEROUS
 @bp.route('/display/<filename>')

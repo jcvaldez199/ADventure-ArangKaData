@@ -1,6 +1,6 @@
 import { Home } from '../Home/Home'
 import { Customer } from '../Customer/Customer'
-import { Video } from '../Video/Video'
+import  Video  from '../Video/Video'
 import Request from '../Request/Request'
 
 export const MenuItems = [
