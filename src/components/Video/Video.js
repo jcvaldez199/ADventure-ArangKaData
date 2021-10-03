@@ -10,27 +10,29 @@ const vidDisplayUrl = "http://localhost:3000/video_api/display/"
 
 function Video() {
   const [vid, setVid] = useState([]);
-  const [currentVid, setCurrent] = useState("");
+  const [currentVid, setCurrent] = useState({});
 
   useEffect(() => {
     axios.get(vidUrl).then((response) => {
       setVid(response.data);
-      setCurrent(response.data[0].filename);
+      setCurrent(response.data[0]);
     });
   }, []);
 
   function postVid(event) {
     event.preventDefault()
-    console.log(event.target.elements.vidfile.value)
-    /*axios.post(reqSendUrl, 
-      {
-        video: event.target.elements.formVideos.value,
-        location: event.target.elements.formLocation.value,
-        route: event.target.elements.formRoute.value
-      })
-      .then((response) => {
-        console.log("must redirect");
-      });*/
+    console.log(event.target.elements.vidfile.files[0])
+    var formData = new FormData();
+    formData.append("file", event.target.elements.vidfile.files[0]);
+    axios.post(vidPostUrl, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+    })
+    .then((response) => {
+      setCurrent(response.data);
+      setVid(prevState => ([...prevState,response.data]));
+    });
   }
 
   const renderTooltip = (props) => (
@@ -47,7 +49,7 @@ function Video() {
             <CardDeck>
               {vid.map(item => (
                 <Card>
-                  <Card.Img variant="bottom" src="holder.js/100px160" />
+                  <Card.Img variant="bottom" src={vidDisplayUrl.concat(item.thumbnail)} />
                   <Card.Body>
                     <Card.Text>
                       <OverlayTrigger
@@ -55,14 +57,13 @@ function Video() {
                         delay={{ show: 250, hide: 400 }}
                         overlay={renderTooltip}
                       >
-                        <Button value={item} onClick={() => setCurrent(item.filename)}>{item.filename}</Button>
+                        <Button value={item} onClick={() => setCurrent(item)}>{item.filename}</Button>
                       </OverlayTrigger>
                     </Card.Text>
                   </Card.Body>
                 </Card>
               ))}
               <Card>
-                <Card.Img variant="bottom" src="holder.js/100px160" />
                 <Card.Body>
                   <Card.Text>
                     <Form onSubmit={postVid}>
@@ -85,7 +86,9 @@ function Video() {
             </CardDeck>
           </Col>
           <Col>
-            <ReactPlayer url={vidDisplayUrl.concat(currentVid)} width="100%" height="100%" controls={true} />
+            { !(currentVid == null) &&
+            <ReactPlayer url={vidDisplayUrl.concat(currentVid.filename)} width="100%" height="100%" controls={true} />
+            }
           </Col>
         </Row>
       </Container>

@@ -9,7 +9,7 @@ from werkzeug.utils import secure_filename
 import json
 import os, sys
 import ffmpeg
-
+from flask_cors import cross_origin
 
 bp = Blueprint('video', __name__, url_prefix='/video_api')
 
@@ -18,14 +18,14 @@ bp = Blueprint('video', __name__, url_prefix='/video_api')
 @login_required
 def index():
     db = get_db()
-    command = """SELECT filename FROM video
+    command = """SELECT * FROM video
                  WHERE userid = %(userid)s;
               """
     params = {'userid':g.user['id']}
     videos = db_execute(command, params).fetchall()
     return jsonify(videos)
 
-@bp.route('/upload', methods=['GET','POST'])
+@bp.route('/upload/', methods=('GET','POST'))
 @login_required
 def upload_vid():
     db = get_db()
@@ -52,7 +52,7 @@ def upload_vid():
             db_execute(command, params, True)
             flash('Video successfully uploaded and displayed below')
             filename = secure_filename(file.filename)
-            return render_template('video/upload.html', filename=filename)
+            return jsonify({'filename':fname,'thumbnail':thumbnailpath})
 
 def save_video(file):
 
@@ -81,7 +81,7 @@ def generate_thumbnail(videopath, videoname):
     except ffmpeg.Error as e:
         print(e.stderr.decode(), file=sys.stderr)
         sys.exit(1)
-    return videoname+"_thumbnail.jpeg"
+    return videoname[::-1].split(".",1)[-1][::-1] + "_thumbnail.jpeg"
 
 
 # SHOULD APPLY VALIDATION FIXES CURRENTLY THIS IS VERY DANGEROUS
@@ -89,3 +89,4 @@ def generate_thumbnail(videopath, videoname):
 @login_required
 def display_vid(filename):
     return send_file(current_app.config['VIDEOS']+"/"+filename)
+
