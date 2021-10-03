@@ -18,14 +18,15 @@ CREATE TABLE route (
 
 
 CREATE TABLE video (
-  filename VARCHAR(30),
+  filename VARCHAR(50),
+  thumbnail VARCHAR(50),
   userid INTEGER, 
   FOREIGN KEY (userid) REFERENCES customer (id),
   PRIMARY KEY (userid, filename)
 );
 
 CREATE TABLE location (
-  locname VARCHAR(30),
+  locname VARCHAR(50),
   routename TEXT NOT NULL,
   userid INTEGER, 
   FOREIGN KEY (routename) REFERENCES route (name),
@@ -37,8 +38,8 @@ CREATE TABLE request (
   id SERIAL PRIMARY KEY,
   routename TEXT NOT NULL,
   userid INTEGER NOT NULL, 
-  videoname VARCHAR(30) NOT NULL,
-  locname VARCHAR(30) NOT NULL,
+  videoname VARCHAR(50) NOT NULL,
+  locname VARCHAR(50) NOT NULL,
   date_decision TIMESTAMP,
   date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   approved BOOLEAN DEFAULT False,
@@ -60,8 +61,9 @@ INSERT INTO location (userid, locname, routename) VALUES (1,'Location Beta','Rou
 INSERT INTO location (userid, locname, routename) VALUES (1,'Location Gamma','Route B');
 INSERT INTO location (userid, locname, routename) VALUES (1,'Location Sigma','Route B');
 
-INSERT INTO video (filename, userid) VALUES ('top_500_cheese.mp4', 1);
+/*
+INSERT INTO video (filename, userid, thumbnail) VALUES ('top_500_cheese.mp4', 1, 'top_500_cheese_thumbnail.jpeg');
 
 INSERT INTO request (routename, userid, videoname, locname) VALUES ('Route A', 1, 'top_500_cheese.mp4', 'Location Alpha');
 INSERT INTO request (routename, userid, videoname, locname) VALUES ('Route B', 1, 'top_500_cheese.mp4', 'Location Gamma');
-
+*/
