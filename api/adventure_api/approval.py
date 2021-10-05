@@ -3,8 +3,7 @@ from flask import (
 )
 from werkzeug.exceptions import abort
 import json
-from adventure.auth import login_required
-from adventure.db import get_db, db_execute
+from adventure_api.db import get_db, db_execute
 
 bp = Blueprint('approval', __name__, url_prefix='/approval')
 

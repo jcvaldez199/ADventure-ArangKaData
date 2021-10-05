@@ -6,16 +6,24 @@ const reqSendUrl = "http://localhost:3000/request_api/send"
 
 function SendForm() {
 
-  const [routes, setRoute] = useState({});
+  const [routes, setRoute] = useState([{}]);
   const [videos, setVideo] = useState([]);
   const [selectedRoute, setSelect] = useState("");
 
   useEffect(() => {
-    axios.get(reqSendUrl).then((response) => {
-      setRoute(response.data[0]);
-      setVideo(response.data[1]);
-      setSelect( Object.keys(response.data[0])[0] );
-    });
+    axios
+      .get(reqSendUrl,
+        { headers: 
+          { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        })
+      .then((response) => {
+        setRoute(response.data[0]);
+        setVideo(response.data[1]);
+        setSelect( Object.keys(response.data[0])[0] );
+      }).catch(error => {
+        setRoute([{}]);
+        setVideo([]);
+      });
   }, []);
 
   function postRequest(event) {
@@ -25,7 +33,11 @@ function SendForm() {
         video: event.target.elements.formVideos.value,
         location: event.target.elements.formLocation.value,
         route: event.target.elements.formRoute.value
-      })
+      },
+      { headers: 
+        { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      }
+    )
       .then((response) => {
         console.log("must redirect");
       });
@@ -64,7 +76,8 @@ function SendForm() {
       <Form.Label column sm={2}> Videos </Form.Label>
       <Col sm={10}>
          <Form.Control as="select" defaultValue="Choose...">
-            {videos.map(item => (
+            { !(videos == null) &&
+              videos.map(item => (
                 <option>{item.filename}</option>
               ))}
         </Form.Control>

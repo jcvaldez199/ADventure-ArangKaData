@@ -1,0 +1,8 @@
+- Add login checker in Login.js
+- Change Navbar to Bootstrap
+- Add the Rest of CRUD funcs for api
+
+Prod changes
+- Change DB engine to SQLalchemy to avoid sql injections
+- Wrap api as single page app with flask-security
+- create a more appropriate token mechanism compared to localstorage

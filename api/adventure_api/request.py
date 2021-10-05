@@ -3,28 +3,26 @@ from flask import (
 )
 from werkzeug.exceptions import abort
 import json
-from adventure.auth import login_required
-from adventure.db import get_db, db_execute
+#from adventure_api.auth import login_required
+from adventure_api.db import get_db, db_execute
+from flask_jwt_extended import ( get_jwt_identity, jwt_required )
 
 bp = Blueprint('request', __name__, url_prefix='/request_api')
 
 @bp.route('/')
+@jwt_required()
 def index():
-    user_id = session.get('user_id')
-
-    if user_id is None:
-       return redirect(url_for('auth.login'))
     command = 'SELECT * FROM request WHERE userid = %(userid)s '
-    params = {'userid':g.user['id']}
+    params = {'userid':get_jwt_identity()}
     requests = db_execute(command, params).fetchall()
     return jsonify(requests)
 
 @bp.route('/send', methods=('GET', 'POST'))
-@login_required
+@jwt_required()
 def send():
     loc_command = 'SELECT * FROM location WHERE userid = %(userid)s '
     vid_command = 'SELECT filename FROM video WHERE userid = %(userid)s '
-    params = {'userid':g.user['id']}
+    params = {'userid':get_jwt_identity()}
     videos = db_execute(vid_command, params).fetchall()
     locations = db_execute(loc_command, params).fetchall()
 
@@ -46,7 +44,7 @@ def send():
                           VALUES (%(routename)s, %(userid)s, %(videoname)s, %(locname)s);
                       """
             params = {'routename':route,
-                      'userid':g.user['id'],
+                      'userid':get_jwt_identity(),
                       'videoname':video,
                       'locname':location}
             db_execute(command, params, True)
@@ -55,11 +53,11 @@ def send():
     return jsonify(get_route_dict(locations),videos)
 
 @bp.route('/<int:id>/edit', methods=('GET', 'POST'))
-@login_required
+@jwt_required()
 def edit(id):
     loc_command = 'SELECT * FROM location WHERE userid = %(userid)s '
     vid_command = 'SELECT filename FROM video WHERE userid = %(userid)s '
-    params = {'userid':g.user['id']} 
+    params = {'userid':get_jwt_identity()} 
     videos = db_execute(vid_command, params).fetchall()
     locations = db_execute(loc_command, params).fetchall()
 
@@ -99,12 +97,12 @@ def get_vid_hash(fname):
     command = """ SELECT hash, userid
                   FROM video
                   WHERE filename = %(filename)s AND userid = %(userid)s;"""
-    params = {'filename':fname, 'userid':g.user['id']}
+    params = {'filename':fname, 'userid':get_jwt_identity()}
     vid = db_execute(command, params).fetchone()
     if vid is None:
         abort(404, f"Video {fname} doesn't exist.")
 
-    if vid['userid'] != g.user['id']:
+    if vid['userid'] != get_jwt_identity():
         abort(403)
 
     return vid['hash']
@@ -113,7 +111,7 @@ def get_request(id):
     command = """ SELECT *
                   FROM request
                   WHERE id = %(id)s AND userid = %(userid)s;"""
-    params = {'id':id, 'userid':g.user['id']}
+    params = {'id':id, 'userid':get_jwt_identity()}
     req = db_execute(command, params).fetchone()
     return req
 
@@ -123,7 +121,7 @@ def get_routes():
     return routes
 
 @bp.route('/<int:id>/show', methods=('GET', 'POST'))
-@login_required
+@jwt_required()
 def show(id):
     req = get_request(id)
     if request.method == 'POST':
@@ -140,7 +138,6 @@ def show(id):
 # should be in location blueprint
 
 @bp.route('/modify_location', methods=('GET', 'POST'))
-@login_required
 def modify_location():
     routes = get_routes()
     locations = get_locations()

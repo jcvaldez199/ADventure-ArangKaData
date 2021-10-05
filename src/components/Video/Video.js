@@ -9,13 +9,22 @@ const vidPostUrl = "http://localhost:3000/video_api/upload/"
 const vidDisplayUrl = "http://localhost:3000/video_api/display/"
 
 function Video() {
-  const [vid, setVid] = useState([]);
-  const [currentVid, setCurrent] = useState({});
+  const [vid, setVid] = useState(null);
+  const [currentVid, setCurrent] = useState(null);
 
   useEffect(() => {
-    axios.get(vidUrl).then((response) => {
-      setVid(response.data);
-      setCurrent(response.data[0]);
+    axios
+      .get(vidUrl, 
+          { headers: 
+            { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          })
+      .then((response) => {
+        setVid(response.data);
+        setCurrent(response.data[0]);
+      })
+      .catch(error => {
+        setVid(null);
+        setCurrent(null);
     });
   }, []);
 
@@ -24,9 +33,11 @@ function Video() {
     console.log(event.target.elements.vidfile.files[0])
     var formData = new FormData();
     formData.append("file", event.target.elements.vidfile.files[0]);
-    axios.post(vidPostUrl, formData, {
+    axios
+      .post(vidPostUrl, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${localStorage.getItem('token')}`
         }
     })
     .then((response) => {
@@ -47,7 +58,8 @@ function Video() {
         <Row>
           <Col>
             <CardDeck>
-              {vid.map(item => (
+              { !(vid == null) &&
+                vid.map(item => (
                 <Card>
                   <Card.Img variant="bottom" src={vidDisplayUrl.concat(item.thumbnail)} />
                   <Card.Body>

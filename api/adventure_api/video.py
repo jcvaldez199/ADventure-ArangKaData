@@ -2,9 +2,10 @@ from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for, jsonify, session, send_from_directory, current_app, send_file
 )
 from werkzeug.exceptions import abort
-from adventure.auth import login_required
-from adventure.db import get_db, db_execute
+#from adventure_api.auth import login_required
+from adventure_api.db import get_db, db_execute
 from werkzeug.utils import secure_filename
+from flask_jwt_extended import ( get_jwt_identity, jwt_required )
 
 import json
 import os, sys
@@ -15,18 +16,18 @@ bp = Blueprint('video', __name__, url_prefix='/video_api')
 
 
 @bp.route('/')
-@login_required
+@jwt_required()
 def index():
     db = get_db()
     command = """SELECT * FROM video
                  WHERE userid = %(userid)s;
               """
-    params = {'userid':g.user['id']}
+    params = {'userid':get_jwt_identity()}
     videos = db_execute(command, params).fetchall()
     return jsonify(videos)
 
 @bp.route('/upload/', methods=('GET','POST'))
-@login_required
+@jwt_required()
 def upload_vid():
     db = get_db()
     if request.method == 'POST':
@@ -46,7 +47,7 @@ def upload_vid():
                          VALUES (%(filename)s, %(userid)s, %(thumbnail)s);
                       """
             params = {'filename':fname,
-                      'userid':g.user['id'],
+                      'userid':get_jwt_identity(),
                       'thumbnail':thumbnailpath
                       }
             db_execute(command, params, True)
@@ -86,7 +87,6 @@ def generate_thumbnail(videopath, videoname):
 
 # SHOULD APPLY VALIDATION FIXES CURRENTLY THIS IS VERY DANGEROUS
 @bp.route('/display/<filename>')
-@login_required
 def display_vid(filename):
     return send_file(current_app.config['VIDEOS']+"/"+filename)
 

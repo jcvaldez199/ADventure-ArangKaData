@@ -2,6 +2,8 @@ import os
 
 from flask import Flask
 from flask_cors import CORS
+from flask_jwt_extended import JWTManager
+from .models import db
 
 
 def create_app(test_config=None):
@@ -11,7 +13,11 @@ def create_app(test_config=None):
     app.config.from_mapping(
         SECRET_KEY='dev',
         VIDEOS=os.path.join(app.instance_path, 'videos'),
+        JWT_SECRET_KEY=os.environ.get("JWT_SECRET"),
+        SQLALCHEMY_DATABASE_URI=os.environ.get("DB_URI"),
+        SQLALCHEMY_TRACK_MODIFICATIONS=False,
     )
+    jwt = JWTManager(app)
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
@@ -29,7 +35,6 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    from . import db
     db.init_app(app)
 
     from . import auth
@@ -38,8 +43,8 @@ def create_app(test_config=None):
     from . import video
     app.register_blueprint(video.bp)
 
-    from . import approval
-    app.register_blueprint(approval.bp)
+    #from . import approval
+    #app.register_blueprint(approval.bp)
 
     from . import request
     app.register_blueprint(request.bp)

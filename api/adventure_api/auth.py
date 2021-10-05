@@ -2,102 +2,98 @@ import functools
 import psycopg2
 
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for
+    Blueprint, flash, g, redirect, render_template, request, session, url_for, jsonify
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from adventure.db import get_db, db_execute
+from adventure_api.db import get_db, db_execute
+
+from flask_jwt_extended import ( create_access_token, get_jwt_identity, jwt_required )
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
-@bp.route('/register', methods=('GET', 'POST'))
+@bp.route('/register', methods=['POST'])
 def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        db = get_db()
-        error = None
+    # get username and password here
+    req = request.get_json()
+    username = req['username']
+    password = req['password']
+    error = None
 
-        if not username:
-            error = 'Username is required.'
-        elif not password:
-            error = 'Password is required.'
+    if not username:
+        error = 'Username is required.'
+    elif not password:
+        error = 'Password is required.'
 
-        if error is None:
-            try:
-                command = "INSERT INTO customer (username, password) VALUES (%(username)s, %(password)s);"
-	        # temporarily disable password hashing
-                #(username, generate_password_hash(password)),
-                params = {'username':username, 'password':password}
-                db_execute(command, params, True).close()
-            #except db.IntegrityError:
-            except:
-                error = f"User {username} is already registered."
-            else:
-                return redirect(url_for("auth.login"))
+    if error is None:
+        try:
+            command = """INSERT INTO customer (username, password)
+                         VALUES (%(username)s, %(password)s);
+                      """
+            params = {'username':username,
+                      'password':generate_password_hash(password)
+                      }
+            db_execute(command, params, True).close()
+            # TEMPORARILY GIVE USER DEFAULT LOCATIONS
+            temp_give_locations(username)
+        #except db.IntegrityError:
+        except Exception as e:
+            print(e)
+        else:
+            return '',204
 
-        flash(error)
 
-    return render_template('auth/register.html')
+def temp_give_locations(username):
 
-@bp.route('/login', methods=('GET', 'POST'))
+    command = 'SELECT * FROM customer WHERE username = %(username)s'
+    params = {'username':username}
+    cursor = db_execute(command, params)
+    userid = cursor.fetchone()
+
+    command = """INSERT INTO location (routename, locname, userid)
+                 VALUES (%(routename)s, %(locname)s, %(userid)s);
+              """
+    params = {'routename':"Route A",
+              'locname' : "Location Alpha",
+              'userid' : userid['id']
+              }
+    db_execute(command, params, True).close()
+
+
+@bp.route('/login', methods=['POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+        username = request.json.get("username", None)
+        password = request.json.get("password", None)
         error = None
-         
         command = 'SELECT * FROM customer WHERE username = %(username)s'
-        params = {'username':username} 
+        params = {'username':username}
         cursor = db_execute(command, params)
         user = cursor.fetchone()
 
-	# temporarily disable password hashing
         if user is None:
             error = 'Incorrect username.'
-        elif not user['password'] == password:
+        elif not check_password_hash(user['password'], password):
             error = 'Incorrect password.'
-        #elif not check_password_hash(user['password'], password):
-        #    error = 'Incorrect password.'
 
         cursor.close()
         if error is None:
-            session.clear()
-            session['user_id'] = user['id']
-            if user['isadmin']:
-               return redirect(url_for('approval.index')) 
-            return redirect(url_for('index'))
+            access_token = create_access_token(identity=user['id'])
+            return jsonify(access_token=access_token)
 
-        flash(error)
+        return jsonify({'error':error})
 
-    return render_template('auth/login.html')
+        # handle the error here
 
-@bp.before_app_request
-def load_logged_in_user():
-    user_id = session.get('user_id')
+# requiring the token for accessing 
+def user_token_required(route):
+    @functools.wraps(route)
+    def wrapped_route(**kwargs):
+        check_token = False
+        if check_token:
+            return jsonify(error="not authorized")
 
-    if user_id is None:
-        g.user = None
-    else:
-        command = 'SELECT * FROM customer WHERE id = %(id)s'
-        params = {'id':user_id} 
-        cursor = db_execute(command, params)
-        g.user = cursor.fetchone()
-        cursor.close()
+        return route(**kwargs)
 
-@bp.route('/logout')
-def logout():
-    session.clear()
-    return redirect(url_for('index'))
-
-def login_required(view):
-    @functools.wraps(view)
-    def wrapped_view(**kwargs):
-        if g.user is None:
-            return redirect(url_for('auth.login'))
-
-        return view(**kwargs)
-
-    return wrapped_view
-
+    return wrapped_route
 

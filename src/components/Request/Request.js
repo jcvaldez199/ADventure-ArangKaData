@@ -6,16 +6,23 @@ import SendForm from './SendForm'
 
 // Move these to a config file
 const reqUrl = "http://localhost:3000/request_api/"
-const reqSendUrl = "http://localhost:3000/request_api/send"
 const vidDisplayUrl = "http://localhost:3000/video_api/display/"
 
 function Request() {
-  const [req, setReq] = useState([{}]);
+  const [req, setReq] = useState(null);
 
   useEffect(() => {
-    axios.get(reqUrl).then((response) => {
-      setReq(response.data);
-    });
+    axios
+      .get(reqUrl,
+          { headers: 
+            { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          })
+      .then((response) => {
+        setReq(response.data);
+      }).catch(error => {
+        console.log(req);
+        setReq(null);
+      });
   }, []);
 
   if (!req) return null;
@@ -29,12 +36,14 @@ function Request() {
           className="mb-3"
         >
           <Tab eventKey="pending" title="Pending">
-            {req.filter(items => !items.approved).map(item => (
+            { !(req == null) &&
+              req.filter(items => !items.approved).map(item => (
               <RequestShowBody req={item}/>
               ))}
           </Tab>
           <Tab eventKey="accepted" title="Accepted">
-            {req.filter(items => items.approved).map(item => (
+            { !(req == null) &&
+              req.filter(items => items.approved).map(item => (
               <RequestShowBody req={item}/>
               ))}
           </Tab>
