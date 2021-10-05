@@ -23,7 +23,7 @@ yarn-debug.log*
 yarn-error.log*
 
 # backend
-venv/
+venv_adventure/
 
 *.pyc
 __pycache__/
