@@ -57,6 +57,8 @@ INSERT INTO customer (username, password, isAdmin) VALUES ('admin','admin', TRUE
 
 INSERT INTO route (name) VALUES ('Route A');
 INSERT INTO route (name) VALUES ('Route B');
+INSERT INTO route (name) VALUES ('Route C');
+INSERT INTO route (name) VALUES ('Route D');
 
 /*
 INSERT INTO location (userid, locname, routename) VALUES (1,'Location Alpha','Route A');

@@ -3,6 +3,7 @@ import { MenuItems } from "./MenuItems"
 import { Button } from "../Button"
 import './Navbar.css'
 import { BrowserRouter as Router, Switch, Route, Link, useRouteMatch, useParams } from 'react-router-dom'
+import { getAdmin, removeAdmin } from '../Test/Adminify'
 
 
 function Navbar() {
@@ -45,6 +46,8 @@ function Nav() {
                 })}
             </ul>
             <Button onClick={() => {localStorage.clear();window.location.reload();}}>Logout</Button>
+            <Button onClick={getAdmin}>Get Admin</Button>
+            <Button onClick={removeAdmin}>Remove Admin</Button>
         </nav>
     );
 }

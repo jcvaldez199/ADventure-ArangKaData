@@ -58,6 +58,14 @@ def temp_give_locations(username):
               'userid' : userid['id']
               }
     db_execute(command, params, True).close()
+    command = """INSERT INTO location (routename, locname, userid)
+                 VALUES (%(routename)s, %(locname)s, %(userid)s);
+              """
+    params = {'routename':"Route A",
+              'locname' : "Location Beta",
+              'userid' : userid['id']
+              }
+    db_execute(command, params, True).close()
 
 
 @bp.route('/login', methods=['POST'])
@@ -84,6 +92,36 @@ def login():
         return jsonify({'error':error})
 
         # handle the error here
+
+@bp.route('/getadmin', methods=['GET'])
+@jwt_required()
+def getadmin():
+    command = """ UPDATE customer SET (isAdmin) = (True)
+                  WHERE id = %(id)s;
+              """
+    params = {'id':get_jwt_identity()}
+    db_execute(command, params, True)
+    return jsonify(status="gotten")
+
+@bp.route('/removeadmin', methods=['GET'])
+@jwt_required()
+def remadmin():
+    command = """ UPDATE customer SET (isAdmin) = (False)
+                  WHERE id = %(id)s;
+              """
+    params = {'id':get_jwt_identity()}
+    db_execute(command, params, True)
+    return jsonify(status="removed")
+
+@bp.route('/checkadmin', methods=['GET'])
+@jwt_required()
+def checkadmin():
+    command = 'SELECT isAdmin FROM customer WHERE id = %(id)s'
+    params = {'id':get_jwt_identity()}
+    cursor = db_execute(command, params)
+    user = cursor.fetchone()
+    return jsonify(isAdmin=user['isadmin'])
+
 
 # requiring the token for accessing 
 def user_token_required(route):

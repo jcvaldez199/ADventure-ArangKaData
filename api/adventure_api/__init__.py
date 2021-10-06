@@ -43,8 +43,8 @@ def create_app(test_config=None):
     from . import video
     app.register_blueprint(video.bp)
 
-    #from . import approval
-    #app.register_blueprint(approval.bp)
+    from . import approval
+    app.register_blueprint(approval.bp)
 
     from . import request
     app.register_blueprint(request.bp)

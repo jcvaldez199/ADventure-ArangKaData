@@ -1,8 +1,13 @@
 - Add login checker in Login.js
+- Make decorator for checking admin accounts
 - Change Navbar to Bootstrap
 - Add the Rest of CRUD funcs for api
+- Add /api prefix to all backend routes
+- Security Service for handling auth tokens and any univesal headers for Frontend requests
 
 Prod changes
 - Change DB engine to SQLalchemy to avoid sql injections
 - Wrap api as single page app with flask-security
 - create a more appropriate token mechanism compared to localstorage
+- Host both on same port
+- Fix URLs on single config page for frontend

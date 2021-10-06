@@ -39,7 +39,7 @@ function SendForm() {
       }
     )
       .then((response) => {
-        console.log("must redirect");
+        window.location.reload();
       });
   }
 

@@ -4,68 +4,66 @@ from flask import (
 from werkzeug.exceptions import abort
 import json
 from adventure_api.db import get_db, db_execute
+from flask_jwt_extended import ( get_jwt_identity, jwt_required )
 
 bp = Blueprint('approval', __name__, url_prefix='/approval')
 
 @bp.route('/')
-@login_required
+@jwt_required()
 def index():
-    
     # NEED TO ONLY WORK FOR ADMIN ACCOUNTS
-    if not check_admin():
+    if not check_admin(get_jwt_identity()):
        abort(403)
-   
-    command = """SELECT * FROM request 
+
+    command = """SELECT * FROM request
                  WHERE (approved = False AND date_created > date_decision)
                     OR (date_decision IS NULL);
               """
     requests = db_execute(command, {}).fetchall()
-    return render_template('approval/index.html', requests=requests)
+    return jsonify(requests)
 
-@bp.route('/<int:id>/show', methods=('GET', 'POST'))
-@login_required
-def show(id):
-    req = get_request(id)
-    customer = get_customer(req['userid'])
-    if request.method == 'POST':
-        decision = eval(request.form['decision'])
-        remarks = request.form['remarks']
-        error = None
+@bp.route('/update', methods=['POST'])
+@jwt_required()
+def update():
 
-        if (not remarks):
-            error = 'missing field.'
+    if not check_admin(get_jwt_identity()):
+       abort(403)
 
-        if error is not None:
-            flash(error)
+    req_form = request.get_json()
+    req_id = req_form['req_id']
+    decision = req_form['decision']
+    remarks = req_form['remarks']
+    error = None
 
-        else:
-            command = """ UPDATE request SET (approved, remarks, date_decision)
-                          = (%(decision)s, %(remarks)s, CURRENT_TIMESTAMP)
-                          WHERE id = %(id)s;
-                      """
-            params = {'decision':decision
-                      ,'id':id
-                      ,'remarks':remarks
-                     }
-            db_execute(command, params, True)
-            return redirect(url_for('approval.index'))
-    
+    if (not remarks):
+        error = 'missing field.'
 
-    return render_template('approval/show.html', request=req, customer=customer)
+    if error is not None:
+        return jsonify(error=error)
 
-def check_admin():
+    else:
+        command = """ UPDATE request SET (approved, remarks, date_decision)
+                      = (%(decision)s, %(remarks)s, CURRENT_TIMESTAMP)
+                      WHERE id = %(id)s;
+                  """
+        params = {'decision':decision
+                  ,'id':req_id
+                  ,'remarks':remarks
+                 }
+        db_execute(command, params, True)
+        return '',204
+
+
+def check_admin(userid):
     command = 'SELECT isAdmin FROM customer WHERE id = %(userid)s '
-    params = {'userid':g.user['id']} 
+    params = {'userid':userid}
     return db_execute(command, params).fetchone()['isadmin']
-    
-    
 
 @bp.route('/send', methods=('GET', 'POST'))
-@login_required
 def send():
     loc_command = 'SELECT * FROM location WHERE userid = %(userid)s '
     vid_command = 'SELECT filename FROM video WHERE userid = %(userid)s '
-    params = {'userid':g.user['id']} 
+    params = {'userid':g.user['id']}
     videos = db_execute(vid_command, params).fetchall()
     locations = db_execute(loc_command, params).fetchall()
 
