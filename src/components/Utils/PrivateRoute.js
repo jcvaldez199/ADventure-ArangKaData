@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Redirect, Route } from 'react-router-dom'
 import axios from 'axios'
+import { UrlBase } from '../config'
 
 const PrivateRoute = ({ component: Component, ...rest }) => {
 
@@ -23,7 +24,7 @@ const PrivateRoute = ({ component: Component, ...rest }) => {
 export const AdminRoute = ({ component: Component, ...rest }) => {
 
   // Check the Token
-  const adminUrl = "http://localhost:3000/auth/checkadmin"
+  const adminUrl = UrlBase.concat("/auth/checkadmin")
   const [isadmin, setAdmin] = useState(false);
 
   useEffect(() => {

@@ -3,10 +3,11 @@ import axios from 'axios'
 import { Button, Tabs, Tab, Row, Col, Container, Accordion, Card, Table, Navbar } from 'react-bootstrap'
 import ReactPlayer from "react-player";
 import './TextArea.css'
+import { UrlBase } from '../config'
 
 // Move these to a config file
-const reqUrl = "http://localhost:3000/approval/"
-const vidDisplayUrl = "http://localhost:3000/video_api/display/"
+const reqUrl = UrlBase.concat("/approval/")
+const vidDisplayUrl = UrlBase.concat("/video_api/display/")
 
 function Approval() {
   const [req, setReq] = useState(null);
@@ -80,7 +81,7 @@ function RequestShowBody(props) {
 
 function RequestDescription(props) {
 
-  const reqUrl = 'http://localhost:3000/approval/update';
+  const reqUrl = UrlBase.concat("/approval/update");
   const [decision, setDecision] = useState(null);
   function postRequest(event) {
     event.preventDefault()

@@ -1,8 +1,9 @@
 import axios from 'axios'
+import { UrlBase } from '../config'
 
 // Move these to a config file
-const getUrl = "http://localhost:3000/auth/getadmin"
-const removeUrl = "http://localhost:3000/auth/removeadmin"
+const getUrl = UrlBase.concat("/auth/getadmin")
+const removeUrl = UrlBase.concat("/auth/removeadmin")
 
 
 export const getAdmin = () => {

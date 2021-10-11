@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
-import { Button } from 'react-bootstrap'
+import { Button, Fade } from 'react-bootstrap'
+import { UrlBase } from '../config'
+import { useHistory } from 'react-router-dom'
 
 // Move these to a config file
-const loginUrl = "http://localhost:3000/auth/register"
+const loginUrl = UrlBase.concat("/auth/register")
 
 function Register() {
-  const [username, setUsername] = useState(null);
-  const [password, setPassword] = useState(null);
+  const history = useHistory();
 
-  function postCred() {
+  function postCred(event) {
     axios.post(loginUrl, 
     {
-      username: username,
-      password: password
+      username: event.target.elements.formUsername.value,
+      password: event.target.elements.formPassword.value
     })
     .then((response) => {
       console.log("registered");
@@ -21,14 +22,31 @@ function Register() {
     .catch(error => {
       console.error("error",error);
     });
+    history.push('/login');
   }
 
   return (
     <div>
-      <h1>Register</h1>
-      <input type="text" placeholder="username" value={username} onChange={(event) => setUsername(event.target.value)} />
-      <input type="password" placeholder="password" value={password} onChange={(event) => setPassword(event.target.value)} />
-      <Button onClick={postCred}> Register </Button>
+      <Fade appear={true} in={true}>
+      <div className="auth-wrapper">
+        <div className="auth-inner">
+           <form onSubmit={postCred}>
+              <h3>Register</h3>
+
+              <div className="form-group" >
+                  <label>Username</label>
+                  <input type="username" name="formUsername" className="form-control" placeholder="Enter username" />
+              </div>
+
+              <div className="form-group">
+                  <label>Password</label>
+                  <input type="password"  name="formPassword" className="form-control" placeholder="Enter password" />
+              </div>
+              <button type="submit" className="btn btn-primary btn-block">Register</button>
+          </form>
+        </div>
+      </div>
+      </Fade>
     </div>
   );
 };

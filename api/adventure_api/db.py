@@ -25,3 +25,9 @@ def db_execute(command, params, commit=False):
     if commit:
        db.commit()
     return cursor
+
+def db_retest():
+    db = get_db()
+    cursor = db.cursor(cursor_factory = psycopg2.extras.RealDictCursor)
+    cursor.execute(open("schema.sql", "r").read())
+    return

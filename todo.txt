@@ -1,5 +1,5 @@
+- fix logout mechanism
 - Add login checker in Login.js
-- Make decorator for checking admin accounts
 - Change Navbar to Bootstrap
 - Add the Rest of CRUD funcs for api
 - Add /api prefix to all backend routes

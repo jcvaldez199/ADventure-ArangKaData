@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { Button, Form, Row, Col, Container, Tooltip, Card, CardDeck, OverlayTrigger } from 'react-bootstrap'
 import ReactPlayer from "react-player";
+import { UrlBase } from '../config'
 
 // Move these to a config file
-const vidUrl = "http://localhost:3000/video_api/"
-const vidPostUrl = "http://localhost:3000/video_api/upload/"
-const vidDisplayUrl = "http://localhost:3000/video_api/display/"
+const vidUrl =        UrlBase.concat("/video_api/")
+const vidPostUrl =    UrlBase.concat("/video_api/upload/")
+const vidDisplayUrl = UrlBase.concat("/video_api/display/")
 
 function Video() {
   const [vid, setVid] = useState(null);

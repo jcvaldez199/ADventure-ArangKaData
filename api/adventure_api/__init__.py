@@ -3,7 +3,7 @@ import os
 from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
-from .models import db
+from .temp_setup import test
 
 
 def create_app(test_config=None):
@@ -16,6 +16,7 @@ def create_app(test_config=None):
         JWT_SECRET_KEY=os.environ.get("JWT_SECRET"),
         SQLALCHEMY_DATABASE_URI=os.environ.get("DB_URI"),
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
+        APPLICATION_ROOT="/api",
     )
     jwt = JWTManager(app)
 
@@ -35,7 +36,8 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    db.init_app(app)
+    # run testing setup
+    test.test_setup(app)
 
     from . import auth
     app.register_blueprint(auth.bp)

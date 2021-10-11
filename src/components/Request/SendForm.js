@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { Button, Form, Row, Col } from 'react-bootstrap'
 import axios from 'axios'
+import { UrlBase } from '../config'
 
-const reqSendUrl = "http://localhost:3000/request_api/send"
+const reqSendUrl = UrlBase.concat("/request_api/send")
 
 function SendForm() {
 

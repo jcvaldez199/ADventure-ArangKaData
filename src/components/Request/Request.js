@@ -3,10 +3,11 @@ import axios from 'axios'
 import { Button, Form, Tabs, Tab, Row, Col, Container, Accordion, Card, Table } from 'react-bootstrap'
 import ReactPlayer from "react-player";
 import SendForm from './SendForm'
+import { UrlBase } from '../config'
 
 // Move these to a config file
-const reqUrl = "http://localhost:3000/request_api/"
-const vidDisplayUrl = "http://localhost:3000/video_api/display/"
+const reqUrl = UrlBase.concat("/request_api/")
+const vidDisplayUrl = UrlBase.concat("/video_api/display/")
 
 function Request() {
   const [req, setReq] = useState(null);
