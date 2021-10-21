@@ -93,25 +93,28 @@ def login():
 
         # handle the error here
 
-@bp.route('/getadmin', methods=['GET'])
-@jwt_required()
-def getadmin():
-    command = """ UPDATE customer SET (isAdmin) = (True)
-                  WHERE id = %(id)s;
-              """
-    params = {'id':get_jwt_identity()}
-    db_execute(command, params, True)
-    return jsonify(status="gotten")
+@bp.route('/admin_login', methods=['POST'])
+def login():
+    if request.method == 'POST':
+        username = request.json.get("username", None)
+        password = request.json.get("password", None)
+        error = None
+        command = 'SELECT * FROM admin WHERE username = %(username)s'
+        params = {'username':username}
+        cursor = db_execute(command, params)
+        user = cursor.fetchone()
 
-@bp.route('/removeadmin', methods=['GET'])
-@jwt_required()
-def remadmin():
-    command = """ UPDATE customer SET (isAdmin) = (False)
-                  WHERE id = %(id)s;
-              """
-    params = {'id':get_jwt_identity()}
-    db_execute(command, params, True)
-    return jsonify(status="removed")
+        if user is None:
+            error = 'Incorrect username.'
+        elif not check_password_hash(user['password'], password):
+            error = 'Incorrect password.'
+
+        cursor.close()
+        if error is None:
+            access_token = create_access_token(identity=user['username'])
+            return jsonify(access_token=access_token)
+
+        return jsonify({'error':error})
 
 @bp.route('/checkadmin', methods=['GET'])
 @jwt_required()

@@ -3,18 +3,14 @@ import axios from 'axios'
 import { Button, Form, Tabs, Tab, Row, Col, Container, Accordion, Card, Table } from 'react-bootstrap'
 import ReactPlayer from "react-player";
 import SendForm from './SendForm'
-import { UrlBase } from '../config'
-
-// Move these to a config file
-const reqUrl = UrlBase.concat("/request_api/")
-const vidDisplayUrl = UrlBase.concat("/video_api/display/")
+import { RequestSendUrl, RequestUrlBase, RequestEditUrl, VideoDisplayUrl } from '../config'
 
 function Request() {
   const [req, setReq] = useState(null);
 
   useEffect(() => {
     axios
-      .get(reqUrl,
+      .get(RequestUrlBase,
           { headers: 
             { Authorization: `Bearer ${localStorage.getItem('token')}` }
           })
@@ -39,13 +35,13 @@ function Request() {
           <Tab eventKey="pending" title="Pending">
             { !(req == null) &&
               req.filter(items => !items.approved).map(item => (
-              <RequestShowBody req={item}/>
+              <RequestShowBody req={item} accepted={false}/>
               ))}
           </Tab>
           <Tab eventKey="accepted" title="Accepted">
             { !(req == null) &&
               req.filter(items => items.approved).map(item => (
-              <RequestShowBody req={item}/>
+              <RequestShowBody req={item} accepted={true}/>
               ))}
           </Tab>
           <Tab eventKey="create_new" title="New Request">
@@ -69,10 +65,10 @@ function RequestShowBody(props) {
           <Card.Body>
             <Row>
               <Col>
-                <RequestDescription item={props.req}/>
+                <RequestDescription item={props.req} accepted={props.accepted}/>
               </Col>
               <Col>
-                <ReactPlayer url={vidDisplayUrl.concat(props.req.videoname)} width="100%" height="100%" controls={true} />
+                <ReactPlayer url={VideoDisplayUrl.concat(props.req.videoname)} width="100%" height="100%" controls={true} />
               </Col>
             </Row>
           </Card.Body>
@@ -83,35 +79,134 @@ function RequestShowBody(props) {
 }
 
 function RequestDescription(props) {
+
+    const [routes, setRoute] = useState([{}]);
+    const [videos, setVideo] = useState([]);
+    const [selectedRoute, setSelectedRoute] = useState(props.item.routename);
+    const [selectedLocation, setSelectedLocation] = useState(props.item.locname);
+    const [selectedVideo, setSelectedVideo] = useState(props.item.videoname);
+    const initialRoute = props.item.routename;
+    const initialLocation = props.item.locname;
+    const initialVideo = props.item.videoname;
+
+    useEffect(() => {
+      axios
+        .get(RequestSendUrl,
+          { headers: 
+            { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          })
+        .then((response) => {
+          setRoute(response.data[0]);
+          setVideo(response.data[1]);
+        }).catch(error => {
+          setRoute([{}]);
+          setVideo([]);
+        });
+    }, []);
+
+    function handleedit(event) {
+      event.preventDefault()
+      axios.post(RequestEditUrl.concat(props.item.id), 
+        {
+          video: event.target.elements.formVideos.value,
+          location: event.target.elements.formLocation.value,
+          route: event.target.elements.formRoute.value
+        },
+        { headers: 
+          { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        }
+      )
+        .then((response) => {
+          window.location.reload();
+        });
+    }
     return(
-        <Table striped bordered hover>
-          <tbody>
-            <tr>
-              <td>Date created</td>
-              <td>{props.item.date_created}</td>
-            </tr>
-            <tr>
-              <td>Last Admin check</td>
-              <td>{props.item.date_decision}</td>
-            </tr>
-            <tr>
-              <td>Route</td>
-              <td>{props.item.routename}</td>
-            </tr>
-            <tr>
-              <td>Location</td>
-              <td>{props.item.locname}</td>
-            </tr>
-            <tr>
-              <td>Video Filename</td>
-              <td>{props.item.videoname}</td>
-            </tr>
-            <tr>
-              <td>Remarks</td>
-              <td>{props.item.remarks}</td>
-            </tr>
-          </tbody>
-        </Table>
+      <div>
+        <Form onSubmit={handleedit}>
+              <Table striped bordered hover>
+                <tbody>
+                  <tr>
+                    <td>Last Update</td>
+                    <td>{props.item.date_created}</td>
+                  </tr>
+                  <tr>
+                    <td>Last Admin check</td>
+                    <td>{props.item.date_decision}</td>
+                  </tr>
+                  <tr>
+                    <td>Route</td>
+                    <td>
+                      <Form.Group as={Row} controlId="formRoute">
+                        <Col sm={10}>
+                          <Form.Control 
+                            as="select" 
+                            onChange={(event) => setSelectedRoute(event.target.value)}
+                            value={selectedRoute}
+                            disabled={props.accepted}
+                          >
+                              {Object.keys(routes).map(item => (
+                                  <option>{item}</option>
+                              ))}
+                          </Form.Control>
+                        </Col>
+                      </Form.Group>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Location</td>
+                    <td>
+                      <Form.Group as={Row} controlId="formLocation">
+                        <Col sm={10}>
+                          <Form.Control as="select" 
+                            value={selectedLocation}
+                            onChange={(event) => setSelectedLocation(event.target.value)}
+                            disabled={props.accepted}
+                          >
+                            {Object.entries(routes).filter(([key,value]) => key == selectedRoute).map(([key,value]) => (
+                              value.map(location => (<option>{location.locname}</option>))
+                              ))}
+                          </Form.Control>
+                        </Col>
+                      </Form.Group>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Video Filename</td>
+                    <td>
+                      <Form.Group as={Row} controlId="formVideos">
+                        <Col sm={10}>
+                           <Form.Control as="select" 
+                             value={selectedVideo}
+                             onChange={(event) => setSelectedVideo(event.target.value)}
+                             disabled={props.accepted}
+                           >
+                              { !(videos == null) &&
+                                videos.map(item => (
+                                  <option>{item.filename}</option>
+                                ))}
+                          </Form.Control>
+                        </Col>
+                      </Form.Group>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Remarks</td>
+                    <td>{props.item.remarks}</td>
+                  </tr>
+                </tbody>
+              </Table>
+          <Form.Group as={Row}>
+            <Col sm={{ span: 10, offset: 2 }}>
+              <Button 
+              type="submit"
+                disabled={ ( initialRoute === selectedRoute && initialLocation === selectedLocation  && initialVideo === selectedVideo && !props.accepted ) }
+              >
+                Save Changes
+              </Button>
+            </Col>
+          </Form.Group>
+        </Form>
+      </div>
     );
 }
 

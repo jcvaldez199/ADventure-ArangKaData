@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { Button, Form, Row, Col } from 'react-bootstrap'
 import axios from 'axios'
-import { UrlBase } from '../config'
+import { RequestSendUrl } from '../config'
 
-const reqSendUrl = UrlBase.concat("/request_api/send")
 
 function SendForm() {
 
@@ -13,7 +12,7 @@ function SendForm() {
 
   useEffect(() => {
     axios
-      .get(reqSendUrl,
+      .get(RequestSendUrl,
         { headers: 
           { Authorization: `Bearer ${localStorage.getItem('token')}` }
         })
@@ -29,7 +28,7 @@ function SendForm() {
 
   function postRequest(event) {
     event.preventDefault()
-    axios.post(reqSendUrl, 
+    axios.post(RequestSendUrl, 
       {
         video: event.target.elements.formVideos.value,
         location: event.target.elements.formLocation.value,

@@ -7,7 +7,7 @@ import json
 from adventure_api.db import get_db, db_execute
 from flask_jwt_extended import ( get_jwt_identity, jwt_required )
 
-bp = Blueprint('request', __name__, url_prefix='/request_api')
+bp = Blueprint('request', __name__, url_prefix='/request')
 
 @bp.route('/')
 @jwt_required()
@@ -52,18 +52,15 @@ def send():
 
     return jsonify(get_route_dict(locations),videos)
 
-@bp.route('/<int:id>/edit', methods=('GET', 'POST'))
+@bp.route('/edit/<int:id>', methods=['POST'])
 @jwt_required()
 def edit(id):
-    loc_command = 'SELECT * FROM location WHERE userid = %(userid)s '
-    vid_command = 'SELECT filename FROM video WHERE userid = %(userid)s '
-    params = {'userid':get_jwt_identity()} 
-    videos = db_execute(vid_command, params).fetchall()
-    locations = db_execute(loc_command, params).fetchall()
-
+    params = {'userid':get_jwt_identity()}
     if request.method == 'POST':
-        video = request.form['video']
-        location = json.loads(request.form['location'])
+        req_form = request.get_json()
+        video = req_form['video']
+        location = req_form['location']
+        route = req_form['route']
         error = None
 
         if (not video) or (not location):
@@ -73,18 +70,16 @@ def edit(id):
             flash(error)
 
         else:
-            command = """ UPDATE request SET (routename, videoname, locname)
-                                           = (%(routename)s, %(videoname)s, %(locname)s)
+            command = """ UPDATE request SET (routename, videoname, locname, date_created)
+                                           = (%(routename)s, %(videoname)s, %(locname)s, CURRENT_TIMESTAMP)
                           WHERE id = %(id)s;
                       """
-            params = {'routename':location['routename'],
+            params = {'routename':route,
                       'videoname':video,
                       'id':id,
-                      'locname':location['locname']}
+                      'locname':location}
             db_execute(command, params, True)
-            return redirect(url_for('request.show', id=id))
-
-    return render_template('request/send.html', locations=locations, videos=videos)
+            return ('', 204)
 
 def get_route_dict(location_dict):
     route_dict = {}
@@ -92,20 +87,6 @@ def get_route_dict(location_dict):
         route_dict.setdefault(loc["routename"],[]).append(loc)
 
     return route_dict
-
-def get_vid_hash(fname):
-    command = """ SELECT hash, userid
-                  FROM video
-                  WHERE filename = %(filename)s AND userid = %(userid)s;"""
-    params = {'filename':fname, 'userid':get_jwt_identity()}
-    vid = db_execute(command, params).fetchone()
-    if vid is None:
-        abort(404, f"Video {fname} doesn't exist.")
-
-    if vid['userid'] != get_jwt_identity():
-        abort(403)
-
-    return vid['hash']
 
 def get_request(id):
     command = """ SELECT *
@@ -120,20 +101,6 @@ def get_routes():
     routes = db_execute(command, {}).fetchall()
     return routes
 
-@bp.route('/<int:id>/show', methods=('GET', 'POST'))
-@jwt_required()
-def show(id):
-    req = get_request(id)
-    if request.method == 'POST':
-       command = """ UPDATE request SET (date_created)
-                     = (CURRENT_TIMESTAMP)
-                     WHERE id = %(id)s;
-                 """
-       params = {'id':id}
-       db_execute(command, params, True)
-       return redirect(url_for('request.index'))
-
-    return render_template('request/show.html', request=req)
 
 # should be in location blueprint
 

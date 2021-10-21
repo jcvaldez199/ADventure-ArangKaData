@@ -12,8 +12,7 @@ CREATE TABLE customer (
 );
 
 CREATE TABLE admin (
-  id SERIAL PRIMARY KEY,
-  username VARCHAR(15) UNIQUE NOT NULL,
+  username VARCHAR(15) PRIMARY KEY,
   password TEXT NOT NULL
 );
 

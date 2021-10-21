@@ -21,40 +21,4 @@ const PrivateRoute = ({ component: Component, ...rest }) => {
   )
 }
 
-export const AdminRoute = ({ component: Component, ...rest }) => {
-
-  // Check the Token
-  const adminUrl = UrlBase.concat("/auth/checkadmin")
-  const [isadmin, setAdmin] = useState(false);
-
-  useEffect(() => {
-    axios
-      .get(adminUrl,
-          { headers: 
-            { Authorization: `Bearer ${localStorage.getItem('token')}` }
-          })
-      .then((response) => {
-        setAdmin(response.data.isAdmin);
-        console.log(isadmin)
-      }).catch(error => {
-        console.log(error);
-      });
-  }, []);
-
-  return (
-    <Route
-      {...rest}
-      render={props => 
-          isadmin
-          ? (
-          <Component {...props} />
-          )
-          : (
-            <h1>Waiting for Admin confirmation</h1>
-          )
-      }
-    />
-  )
-}
-
 export default PrivateRoute

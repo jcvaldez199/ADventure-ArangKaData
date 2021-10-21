@@ -2,12 +2,7 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { Button, Form, Row, Col, Container, Tooltip, Card, CardDeck, OverlayTrigger } from 'react-bootstrap'
 import ReactPlayer from "react-player";
-import { UrlBase } from '../config'
-
-// Move these to a config file
-const vidUrl =        UrlBase.concat("/video_api/")
-const vidPostUrl =    UrlBase.concat("/video_api/upload/")
-const vidDisplayUrl = UrlBase.concat("/video_api/display/")
+import { VideoUrlBase, VideoPostUrl, VideoDisplayUrl } from '../config'
 
 function Video() {
   const [vid, setVid] = useState(null);
@@ -15,7 +10,7 @@ function Video() {
 
   useEffect(() => {
     axios
-      .get(vidUrl, 
+      .get(VideoUrlBase, 
           { headers: 
             { Authorization: `Bearer ${localStorage.getItem('token')}` }
           })
@@ -35,7 +30,7 @@ function Video() {
     var formData = new FormData();
     formData.append("file", event.target.elements.vidfile.files[0]);
     axios
-      .post(vidPostUrl, formData, {
+      .post(VideoPostUrl, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${localStorage.getItem('token')}`
@@ -62,7 +57,7 @@ function Video() {
               { !(vid == null) &&
                 vid.map(item => (
                 <Card>
-                  <Card.Img variant="bottom" src={vidDisplayUrl.concat(item.thumbnail)} />
+                  <Card.Img variant="bottom" src={VideoDisplayUrl.concat(item.thumbnail)} />
                   <Card.Body>
                     <Card.Text>
                       <OverlayTrigger
@@ -100,7 +95,7 @@ function Video() {
           </Col>
           <Col>
             { !(currentVid == null) &&
-            <ReactPlayer url={vidDisplayUrl.concat(currentVid.filename)} width="100%" height="100%" controls={true} />
+            <ReactPlayer url={VideoDisplayUrl.concat(currentVid.filename)} width="100%" height="100%" controls={true} />
             }
           </Col>
         </Row>

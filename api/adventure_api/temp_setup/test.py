@@ -30,7 +30,7 @@ def edit_admin():
     try:
         command = """ UPDATE admin SET (password)
                       = (%(password)s)
-                      WHERE id = 1;
+                      WHERE username = admin;
                   """
         params = {'password':generate_password_hash("admin")}
         db_execute(command, params, True).close()

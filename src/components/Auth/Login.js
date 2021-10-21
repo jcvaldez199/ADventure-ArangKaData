@@ -2,25 +2,23 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { Button, Fade } from 'react-bootstrap'
 import { useHistory } from 'react-router-dom'
-import { UrlBase } from '../config'
+import { CustomerLoginUrl } from '../config'
 import './auth-css.css'
 
 // Move these to a config file
-const loginUrl = UrlBase.concat("/auth/login")
-
 function Login() {
   const history = useHistory();
   const redirectpath = '/main';
 
   function postCred(event) {
     event.preventDefault()
-    axios.post(loginUrl, 
+    axios.post(CustomerLoginUrl, 
     {
       username: event.target.elements.formUsername.value,
       password: event.target.elements.formPassword.value
     })
     .then((response) => {
-      console.log(response.data.access_token);
+      localStorage.clear();
       localStorage.setItem('token', response.data.access_token);
       localStorage.setItem('logged_in', true);
       history.push(redirectpath);

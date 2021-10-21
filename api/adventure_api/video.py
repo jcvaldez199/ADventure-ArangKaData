@@ -12,7 +12,7 @@ import os, sys
 import ffmpeg
 from flask_cors import cross_origin
 
-bp = Blueprint('video', __name__, url_prefix='/video_api')
+bp = Blueprint('video', __name__, url_prefix='/video')
 
 
 @bp.route('/')
@@ -26,11 +26,11 @@ def index():
     videos = db_execute(command, params).fetchall()
     return jsonify(videos)
 
-@bp.route('/upload/', methods=('GET','POST'))
+@bp.route('/upload', methods=['POST'])
 @jwt_required()
 def upload_vid():
-    db = get_db()
     if request.method == 'POST':
+        db = get_db()
         if 'file' not in request.files:
             flash('No file part')
             return redirect(request.url)

@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
-import { Navbar, Nav, Fade } from 'react-bootstrap'
-import { BrowserRouter as Router, Switch, Route, Link, NavLink } from 'react-router-dom'
-import { UrlBase } from '../config'
+import { Button, Navbar, Nav, Fade } from 'react-bootstrap'
+import { BrowserRouter as Router, Switch, Route, Link, NavLink, useRouteMatch } from 'react-router-dom'
 import './landingpage-css.css'
-import Login from '../Auth/Login'
-import Register from '../Auth/Register'
+import { MenuItems } from '../MenuItems'
 
 export function LandingNav() {
+
+  let match = useRouteMatch()
 
   return (
     <div>
@@ -19,28 +19,49 @@ export function LandingNav() {
           {localStorage.getItem('logged_in') 
           ? (
             <Navbar.Collapse className='justify-content-end' id="basic-navbar-nav">
+                {MenuItems.map((item, index) => {
+                    return (
+                      <Nav.Link>
+                        <NavLink to={`${match.url}${item.url}`}>{item.title}</NavLink>
+                      </Nav.Link>
+                   ) 
+                })}
                 <Nav.Link>
-                  <NavLink to="/login">test</NavLink>
-                </Nav.Link>
-                <Nav.Link>
-                  <NavLink to="/register">test2</NavLink>
+                  <Button onClick={() => {localStorage.clear();window.location.reload();}}>Logout</Button>
                 </Nav.Link>
             </Navbar.Collapse>
           ) : ( 
-
-            <Navbar.Collapse className='justify-content-end' id="basic-navbar-nav">
-                <Nav.Link>
-                  <NavLink to="/login">Login</NavLink>
-                </Nav.Link>
-                <Nav.Link>
-                  <NavLink to="/register">Register</NavLink>
-                </Nav.Link>
-            </Navbar.Collapse>
+            <LandingLoggedOut/>
           )}
       </Navbar>
+      {localStorage.getItem('logged_in') &&
+        <Switch>
+            {MenuItems.map((item, index) => {
+                return (
+                    <Route path={`${match.path}${item.url}`} component={item.comp} exact={!item.url.localeCompare('') ? true : false} />
+               ); 
+            })}
+        </Switch>
+      }
     </div>
   );
 };
+
+function LandingLoggedOut() {
+  return (
+    <Navbar.Collapse className='justify-content-end' id="basic-navbar-nav">
+        <Nav.Link>
+          <NavLink to="/login">Login</NavLink>
+        </Nav.Link>
+        <Nav.Link>
+          <NavLink to="/register">Register</NavLink>
+        </Nav.Link>
+        <Nav.Link>
+          <NavLink to="/admin_login">Admin Login</NavLink>
+        </Nav.Link>
+    </Navbar.Collapse>
+  );
+}
 
 export function LandingMain() {
 

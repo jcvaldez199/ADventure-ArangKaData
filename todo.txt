@@ -1,13 +1,15 @@
-- fix logout mechanism
-- Add login checker in Login.js
-- Change Navbar to Bootstrap
+- Smoother animations
 - Add the Rest of CRUD funcs for api
-- Add /api prefix to all backend routes
-- Security Service for handling auth tokens and any univesal headers for Frontend requests
+- Rearrange PrivateRoute Directories
+- Add Empty Requests Notif
+- Add modal alerts for Editing and Creating
+- Fix BG color
+- Location Map
+- Fix Admin side of App directly on the flask app
+
 
 Prod changes
+- Refreshing JWTokens
 - Change DB engine to SQLalchemy to avoid sql injections
-- Wrap api as single page app with flask-security
 - create a more appropriate token mechanism compared to localstorage
 - Host both on same port
-- Fix URLs on single config page for frontend
