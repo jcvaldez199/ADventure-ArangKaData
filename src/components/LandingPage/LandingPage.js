@@ -56,9 +56,6 @@ function LandingLoggedOut() {
         <Nav.Link>
           <NavLink to="/register">Register</NavLink>
         </Nav.Link>
-        <Nav.Link>
-          <NavLink to="/admin_login">Admin Login</NavLink>
-        </Nav.Link>
     </Navbar.Collapse>
   );
 }

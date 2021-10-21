@@ -1,3 +1,5 @@
+- Remove Flash alerts on admin side of app
+- Admin Alerts if no pending requests
 - Smoother animations
 - Add the Rest of CRUD funcs for api
 - Rearrange PrivateRoute Directories
@@ -5,7 +7,6 @@
 - Add modal alerts for Editing and Creating
 - Fix BG color
 - Location Map
-- Fix Admin side of App directly on the flask app
 
 
 Prod changes

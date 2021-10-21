@@ -140,7 +140,12 @@ function RequestDescription(props) {
                         <Col sm={10}>
                           <Form.Control 
                             as="select" 
-                            onChange={(event) => setSelectedRoute(event.target.value)}
+                            onChange={(event) => {setSelectedRoute(event.target.value);
+                                                  if (event.target.value === initialRoute) {
+                                                    setSelectedLocation(initialLocation);
+                                                  }
+                                                 }
+                                      }
                             value={selectedRoute}
                             disabled={props.accepted}
                           >
@@ -195,16 +200,20 @@ function RequestDescription(props) {
                   </tr>
                 </tbody>
               </Table>
-          <Form.Group as={Row}>
-            <Col sm={{ span: 10, offset: 2 }}>
-              <Button 
-              type="submit"
-                disabled={ ( initialRoute === selectedRoute && initialLocation === selectedLocation  && initialVideo === selectedVideo && !props.accepted ) }
-              >
-                Save Changes
-              </Button>
-            </Col>
-          </Form.Group>
+          { !(props.accepted) &&
+            (
+              <Form.Group as={Row}>
+                <Col sm={{ span: 10, offset: 2 }}>
+                  <Button 
+                  type="submit"
+                    disabled={ ( initialRoute === selectedRoute && initialLocation === selectedLocation  && initialVideo === selectedVideo ) }
+                  >
+                    Save Changes
+                  </Button>
+                </Col>
+              </Form.Group>
+            )
+          }
         </Form>
       </div>
     );

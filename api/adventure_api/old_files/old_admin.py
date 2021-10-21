@@ -6,7 +6,7 @@ import json
 from adventure_api.db import get_db, db_execute
 from flask_jwt_extended import ( get_jwt_identity, jwt_required )
 
-bp = Blueprint('approval', __name__, url_prefix='/approval')
+bp = Blueprint('approval', __name__, url_prefix='/admin')
 
 @bp.route('/')
 @jwt_required()
@@ -21,6 +21,29 @@ def index():
               """
     requests = db_execute(command, {}).fetchall()
     return jsonify(requests)
+
+@bp.route('/login', methods=['POST'])
+def login():
+    if request.method == 'POST':
+        username = request.json.get("username", None)
+        password = request.json.get("password", None)
+        error = None
+        command = 'SELECT * FROM admin WHERE username = %(username)s'
+        params = {'username':username}
+        cursor = db_execute(command, params)
+        user = cursor.fetchone()
+
+        if user is None:
+            error = 'Incorrect username.'
+        elif not check_password_hash(user['password'], password):
+            error = 'Incorrect password.'
+
+        cursor.close()
+        if error is None:
+            access_token = create_access_token(identity=user['username'])
+            return jsonify(access_token=access_token)
+
+        return jsonify({'error':error})
 
 @bp.route('/update', methods=['POST'])
 @jwt_required()

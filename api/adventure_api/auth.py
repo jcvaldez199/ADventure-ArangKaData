@@ -93,39 +93,6 @@ def login():
 
         # handle the error here
 
-@bp.route('/admin_login', methods=['POST'])
-def login():
-    if request.method == 'POST':
-        username = request.json.get("username", None)
-        password = request.json.get("password", None)
-        error = None
-        command = 'SELECT * FROM admin WHERE username = %(username)s'
-        params = {'username':username}
-        cursor = db_execute(command, params)
-        user = cursor.fetchone()
-
-        if user is None:
-            error = 'Incorrect username.'
-        elif not check_password_hash(user['password'], password):
-            error = 'Incorrect password.'
-
-        cursor.close()
-        if error is None:
-            access_token = create_access_token(identity=user['username'])
-            return jsonify(access_token=access_token)
-
-        return jsonify({'error':error})
-
-@bp.route('/checkadmin', methods=['GET'])
-@jwt_required()
-def checkadmin():
-    command = 'SELECT isAdmin FROM customer WHERE id = %(id)s'
-    params = {'id':get_jwt_identity()}
-    cursor = db_execute(command, params)
-    user = cursor.fetchone()
-    return jsonify(isAdmin=user['isadmin'])
-
-
 # requiring the token for accessing 
 def user_token_required(route):
     @functools.wraps(route)
