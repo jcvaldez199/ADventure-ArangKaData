@@ -16,8 +16,8 @@ def setup_db(fname):
 
 def edit_customer():
     try:
-        command = """ UPDATE customer SET (password)
-                      = (%(password)s)
+        command = """ UPDATE customer SET password
+                      = %(password)s
                       WHERE id = 1;
                   """
         params = {'password':generate_password_hash("test")}
@@ -28,8 +28,7 @@ def edit_customer():
 
 def edit_admin():
     try:
-        command = """ UPDATE admin SET (password)
-                      = (%(password)s)
+        command = """ UPDATE admin SET password = %(password)s
                       WHERE username = 'admin';
                   """
         params = {'password':generate_password_hash("admin")}

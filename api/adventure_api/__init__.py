@@ -29,9 +29,19 @@ def create_app(test_config=None):
         SECRET_KEY='dev',
         VIDEOS=os.path.join(app.instance_path, 'videos'),
         JWT_SECRET_KEY=os.environ.get("JWT_SECRET"),
-        SQLALCHEMY_DATABASE_URI=os.environ.get("DB_URI"),
-        SQLALCHEMY_TRACK_MODIFICATIONS=False,
+        #SQLALCHEMY_DATABASE_URI=os.environ.get("DB_URI"),
+        #SQLALCHEMY_TRACK_MODIFICATIONS=False,
         APPLICATION_ROOT="/api",
+
+        # database config
+        DB_PASSWORD=os.environ.get("DB_PASSWORD"),
+        DB_URI=os.environ.get("DB_URI"),
+        DB_NAME=os.environ.get("DB_NAME"),
+        DB_PORT=os.environ.get("DB_PORT"),
+        DB_USER=os.environ.get("DB_USER"),
+        USE_S3=os.environ.get("USE_S3"),
+        USE_RDS=os.environ.get("USE_RDS"),
+        S3_BUCKET_NAME=os.environ.get("S3_BUCKET_NAME"),
     )
     app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix='/api')
     jwt = JWTManager(app)

@@ -1,3 +1,7 @@
+- Bug with video uploads S3 -> make a folder per user
+- Throw error if thumbnail cant be generated
+- Make a handler that determines whether its file or JSON response for displaying videos on non=S3 on frontend
+
 - Remove Flash alerts on admin side of app
 - Admin Alerts if no pending requests
 - Smoother animations
@@ -10,6 +14,7 @@
 
 
 Prod changes
+- file handling in video api allows any user to access any file, security issue
 - Refreshing JWTokens
 - Change DB engine to SQLalchemy to avoid sql injections
 - create a more appropriate token mechanism compared to localstorage

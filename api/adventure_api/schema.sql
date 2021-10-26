@@ -70,8 +70,8 @@ INSERT INTO location (userid, locname, routename) VALUES (1,'Location Gamma','Ro
 INSERT INTO location (userid, locname, routename) VALUES (1,'Location Sigma','Route B');
 
 
-INSERT INTO video (filename, userid, thumbnail) VALUES ('top_500_cheese.mp4', 1, 'top_500_cheese_thumbnail.jpeg');
+INSERT INTO video (filename, userid, thumbnail) VALUES ('minecraft.mp4', 1, 'minecraft_thumbnail.jpeg');
 
-INSERT INTO request (routename, userid, videoname, locname) VALUES ('Route A', 1, 'top_500_cheese.mp4', 'Location Alpha');
-INSERT INTO request (routename, userid, videoname, locname) VALUES ('Route B', 1, 'top_500_cheese.mp4', 'Location Gamma');
+INSERT INTO request (routename, userid, videoname, locname) VALUES ('Route A', 1, 'minecraft.mp4', 'Location Alpha');
+INSERT INTO request (routename, userid, videoname, locname) VALUES ('Route B', 1, 'minecraft.mp4', 'Location Gamma');
 

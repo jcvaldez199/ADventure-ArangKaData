@@ -16,7 +16,10 @@ function Video() {
           })
       .then((response) => {
         setVid(response.data);
-        setCurrent(response.data[0]);
+        setCurrent(() => {
+          console.log(response.data[0]['filename']);
+          return (response.data[0]);
+        });
       })
       .catch(error => {
         setVid(null);

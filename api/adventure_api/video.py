@@ -2,11 +2,11 @@ from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for, jsonify, session, send_from_directory, current_app, send_file
 )
 from werkzeug.exceptions import abort
-#from adventure_api.auth import login_required
 from adventure_api.db import get_db, db_execute
 from werkzeug.utils import secure_filename
 from flask_jwt_extended import ( get_jwt_identity, jwt_required )
 
+import boto3
 import json
 import os, sys
 import ffmpeg
@@ -59,8 +59,20 @@ def save_video(file):
 
     filename = secure_filename(file.filename)
     videopath = os.path.join(current_app.config['VIDEOS'], filename)
+    thumbnailpath = None
     file.save(videopath)
     thumbnailpath = generate_thumbnail(videopath, filename)
+    if eval(current_app.config["USE_S3"]):
+        s3 = boto3.resource('s3')
+        s3.meta.client.upload_file(Filename=videopath, Bucket=current_app.config["S3_BUCKET_NAME"], Key=filename)
+        tb_path_raw = os.path.join(current_app.config['VIDEOS'], thumbnailpath)
+        with current_app.open_resource(tb_path_raw) as f:
+            s3.Bucket(current_app.config["S3_BUCKET_NAME"]).put_object(Key=thumbnailpath, Body=f)
+        if os.path.exists(videopath):
+            os.remove(videopath)
+        if os.path.exists(tb_path_raw):
+            os.remove(tb_path_raw)
+
     return videopath, thumbnailpath
 
 def generate_thumbnail(videopath, videoname):
@@ -88,5 +100,13 @@ def generate_thumbnail(videopath, videoname):
 # SHOULD APPLY VALIDATION FIXES CURRENTLY THIS IS VERY DANGEROUS
 @bp.route('/display/<filename>')
 def display_vid(filename):
+    if eval(current_app.config["USE_S3"]):
+        s3 = boto3.client('s3')
+        gen_url = s3.generate_presigned_url(
+            ClientMethod='get_object',
+            Params={'Bucket': current_app.config["S3_BUCKET_NAME"], 'Key': filename},
+            ExpiresIn=3600
+        )
+        return redirect(gen_url, code=302)
     return send_file(current_app.config['VIDEOS']+"/"+filename)
 

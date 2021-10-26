@@ -9,7 +9,15 @@ from flask.cli import with_appcontext
 
 def get_db():
     if 'db' not in g:
-        g.db = psycopg2.connect(dbname="adventure")
+        if eval(current_app.config["USE_RDS"]):
+            g.db = psycopg2.connect(dbname=current_app.config["DB_NAME"],
+                                    host=current_app.config["DB_URI"],
+                                    port=current_app.config["DB_PORT"],
+                                    user=current_app.config["DB_USER"],
+                                    password=current_app.config["DB_PASSWORD"]
+                                    )
+        else:
+            g.db = psycopg2.connect(dbname="adventure")
     return g.db
 
 def close_db(e=None):

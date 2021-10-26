@@ -75,6 +75,10 @@ def show(id):
 
 @bp.route('/login', methods=('GET', 'POST'))
 def login():
+    if eval(current_app.config["USE_RDS"]):
+        print("yeah")
+    else:
+        print("nay")
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
