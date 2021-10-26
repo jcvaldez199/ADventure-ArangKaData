@@ -6,7 +6,7 @@ DB_PASSWORD=postgres
 DB_NAME=adventuretest
 DB_USER=postgres
 DB_PORT=5432
-USE_S3=True
-USE_RDS=True
+USE_S3=False
+USE_RDS=False
 S3_BUCKET_NAME=adventuretestbucket
 
