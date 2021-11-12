@@ -20,6 +20,7 @@ Flask-Security-Too==4.1.2
 Flask-SQLAlchemy==2.5.1
 Flask-WTF==0.15.1
 future==0.18.2
+gpxpy==1.5.0
 greenlet==1.1.2
 idna==3.2
 itsdangerous==2.0.1
@@ -30,6 +31,7 @@ passlib==1.7.4
 psycopg2==2.9.1
 pycparser==2.20
 PyJWT==2.1.0
+pymongo==3.12.1
 python-dateutil==2.8.2
 python-dotenv==0.19.0
 pytz==2021.3

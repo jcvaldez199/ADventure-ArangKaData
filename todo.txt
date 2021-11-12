@@ -1,3 +1,4 @@
+- route saving, change directory from VIDEOS
 - Bug with video uploads S3 -> make a folder per user
 - Throw error if thumbnail cant be generated
 - Make a handler that determines whether its file or JSON response for displaying videos on non=S3 on frontend

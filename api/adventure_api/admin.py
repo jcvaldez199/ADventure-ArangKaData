@@ -4,8 +4,12 @@ from flask import (
 from werkzeug.exceptions import abort
 import json
 from werkzeug.security import check_password_hash, generate_password_hash
-from adventure_api.db import get_db, db_execute
+from adventure_api.db import get_db, db_execute, get_gps_collection
+from werkzeug.utils import secure_filename
 import functools
+import gpxpy
+import gpxpy.gpx
+import os
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -119,4 +123,64 @@ def load_logged_in_user():
 def logout():
     session.clear()
     return redirect(url_for('admin.index'))
+#
+#
+#          ROUTE INSERTION
+#
+#
 
+@bp.route('/route', methods=('GET','POST'))
+@login_required
+def route():
+
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        if file.filename == '':
+            flash('No gpx file selected for uploading')
+            return redirect(request.url)
+        else:
+            routename = file.filename
+            filepath = save_route(file)
+            commit_route(filepath, routename)
+            return redirect(url_for('admin.index'))
+
+            command = """INSERT INTO route (name)
+                         VALUES (%(name)s);
+                      """
+            params = {'name':routename}
+            db_execute(command, params, True)
+            flash('Video successfully uploaded and displayed below')
+            return redirect(url_for('admin.index'))
+    return render_template('admin/route.html')
+
+def commit_route(gpx_file_location, routename):
+    """
+    Parses GPX file to output array of objects
+    """
+    points = []
+    f = open(gpx_file_location, 'r')
+    gpx = gpxpy.parse(f)
+    for track in gpx.tracks:
+        for segment in track.segments:
+            for point in segment.points:
+                points.append({
+                    'latitude': point.latitude,
+                    'longitude': point.longitude,
+                    'time': point.time,
+                })
+    # filter unique points based on time
+    unique_points = list({point['time']:[point['longitude'], point['latitude']] for point in points}.values())
+    insertlist = [ {"loc":point, "routename":routename} for point in unique_points ]
+    get_gps_collection.insert_many(insertlist)
+    f.close()
+
+def save_route(file):
+
+    filename = secure_filename(file.filename)
+    filepath = os.path.join(current_app.config['VIDEOS'], filename)
+    file.save(filepath)
+
+    return filepath

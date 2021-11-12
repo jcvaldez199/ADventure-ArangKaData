@@ -1,4 +1,5 @@
 import sqlite3
+import pymongo
 
 import click
 import psycopg2
@@ -39,3 +40,11 @@ def db_retest():
     cursor = db.cursor(cursor_factory = psycopg2.extras.RealDictCursor)
     cursor.execute(open("schema.sql", "r").read())
     return
+
+def get_gps_collection():
+    if 'gps_collection' not in g:
+        myclient = pymongo.MongoClient("mongodb://localhost:27017")
+        mydb = myclient["mydb"]
+        collection = mydb["adventure_gps"]
+        g.gps_collection = collection
+    return g.gps_collection
