@@ -58,20 +58,18 @@ CREATE TABLE request (
 INSERT INTO customer (username, password) VALUES ('test', 'test');
 INSERT INTO admin (username, password) VALUES ('admin', 'admin');
 
-INSERT INTO route (name) VALUES ('Route A');
-INSERT INTO route (name) VALUES ('Route B');
-INSERT INTO route (name) VALUES ('Route C');
-INSERT INTO route (name) VALUES ('Route D');
+INSERT INTO route (name) VALUES ('EDSA');
+INSERT INTO route (name) VALUES ('CRMT');
 
 
-INSERT INTO location (userid, locname, routename) VALUES (1,'Location Alpha','Route A');
-INSERT INTO location (userid, locname, routename) VALUES (1,'Location Beta','Route A');
-INSERT INTO location (userid, locname, routename) VALUES (1,'Location Gamma','Route B');
-INSERT INTO location (userid, locname, routename) VALUES (1,'Location Sigma','Route B');
+INSERT INTO location (userid, locname, routename) VALUES (1,'Location Alpha','EDSA');
+INSERT INTO location (userid, locname, routename) VALUES (1,'Location Beta','EDSA');
+INSERT INTO location (userid, locname, routename) VALUES (1,'Location Gamma','CRMT');
+INSERT INTO location (userid, locname, routename) VALUES (1,'Location Sigma','CRMT');
 
 
 INSERT INTO video (filename, userid, thumbnail) VALUES ('minecraft.mp4', 1, 'minecraft_thumbnail.jpeg');
 
-INSERT INTO request (routename, userid, videoname, locname) VALUES ('Route A', 1, 'minecraft.mp4', 'Location Alpha');
-INSERT INTO request (routename, userid, videoname, locname) VALUES ('Route B', 1, 'minecraft.mp4', 'Location Gamma');
+INSERT INTO request (routename, userid, videoname, locname) VALUES ('EDSA', 1, 'minecraft.mp4', 'Location Alpha');
+INSERT INTO request (routename, userid, videoname, locname) VALUES ('CRMT', 1, 'minecraft.mp4', 'Location Gamma');
 

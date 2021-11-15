@@ -71,6 +71,9 @@ def create_app(test_config=None):
     from . import video
     app.register_blueprint(video.bp)
 
+    from . import route
+    app.register_blueprint(route.bp)
+
     from . import admin
     app.register_blueprint(admin.bp)
 

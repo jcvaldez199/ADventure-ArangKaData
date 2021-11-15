@@ -172,9 +172,9 @@ def commit_route(gpx_file_location, routename):
                     'time': point.time,
                 })
     # filter unique points based on time
-    unique_points = list({point['time']:[point['longitude'], point['latitude']] for point in points}.values())
+    unique_points = list({point['time']:[point['latitude'], point['longitude']] for point in points}.values())
     insertlist = [ {"loc":point, "routename":routename} for point in unique_points ]
-    get_gps_collection.insert_many(insertlist)
+    get_gps_collection().insert_many(insertlist)
     f.close()
 
 def save_route(file):

@@ -2,16 +2,9 @@ import React, { useEffect, useState } from 'react'
 import { Button, Form, Row, Col } from 'react-bootstrap'
 import axios from 'axios'
 import { RequestSendUrl } from '../config'
+import MyMap from './MyMap'
 import { RouteUrlBase } from '../config'
-import { MapContainer, TileLayer, Circle, useMap, setView } from 'react-leaflet'
-import 'leaflet/dist/leaflet.css';
 
-
-function ChangeView({ center, zoom }) {
-  const map = useMap();
-  map.setView(center, zoom);
-  return null;
-}
 
 function SendForm() {
 
@@ -21,7 +14,6 @@ function SendForm() {
   const [map, setMap] = useState(() => (<div className="App">Loading Map...</div>));
   const [center, setCenter] = useState([]);
   const [points, setPoints] = useState([[]]);
-  const redOptions = { color : 'red' };
         
 
   useEffect(() => {
@@ -66,18 +58,9 @@ function SendForm() {
         })
       .then((response) => {
         setPoints(response.data);
-        setCenter(response.data[0] );
+        setCenter( response.data[0] );
         setMap(() => (
-           <div>
-             <MapContainer center={response.data[Math.floor(response.data.length/2)]} zoom={13} scrollWheelZoom={false} style={{ height: '100vh', width: '100wh' }}>
-               <ChangeView center={response.data[Math.floor(response.data.length/2)]} zoom={13} /> 
-               <TileLayer
-                 attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-               />
-               { response.data.map(item => (<Circle center={item} pathOptions={redOptions} radius={1} />)) }
-             </MapContainer>
-           </div>
+            <MyMap center={response.data[0]} points={response.data} />
         ));
       }).catch(error => {
         setPoints([[]]);

@@ -3,7 +3,6 @@ import axios from 'axios'
 import { Button, Form, Tabs, Tab, Row, Col, Container, Accordion, Card, Table } from 'react-bootstrap'
 import ReactPlayer from "react-player";
 import SendForm from './SendForm'
-import MyMap from './MyMap'
 import { RequestSendUrl, RequestUrlBase, RequestEditUrl, VideoDisplayUrl } from '../config'
 
 function Request() {
@@ -47,9 +46,6 @@ function Request() {
           </Tab>
           <Tab eventKey="create_new" title="New Request">
             <SendForm />
-          </Tab>
-          <Tab eventKey="map" title="Map">
-            <MyMap />
           </Tab>
         </Tabs>
       </Container>
