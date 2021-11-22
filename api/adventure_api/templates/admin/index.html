@@ -4,6 +4,7 @@
   <h1>{% block title %}Hello {{ g.user['username'] }}{% endblock %}</h1>
   {% if g.user %}
     <a class="action" href="{{ url_for('admin.index') }}">Return to Index</a>
+    <a class="action" href="{{ url_for('admin.upload_gpx_file') }}">Upload GPX file</a>
   {% endif %}
 {% endblock %}
 

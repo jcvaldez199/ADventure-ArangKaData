@@ -1,8 +1,12 @@
+- Ensure that query to mongodb is sorted by index (add an index field to the GPS points)
+- Fix login timeout mechanism
+- create default location when uploading route GPX
 - route saving, change directory from VIDEOS
 - Bug with video uploads S3 -> make a folder per user
 - Throw error if thumbnail cant be generated
 - Make a handler that determines whether its file or JSON response for displaying videos on non=S3 on frontend
 
+- Add marker popups on locations (UI improvement)
 - Remove Flash alerts on admin side of app
 - Admin Alerts if no pending requests
 - Smoother animations

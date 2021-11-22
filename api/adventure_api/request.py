@@ -3,11 +3,19 @@ from flask import (
 )
 from werkzeug.exceptions import abort
 import json
+import decimal
+from flask.json import JSONEncoder
 #from adventure_api.auth import login_required
 from adventure_api.db import get_db, db_execute
 from flask_jwt_extended import ( get_jwt_identity, jwt_required )
 
 bp = Blueprint('request', __name__, url_prefix='/request')
+
+class JsonEncoder(JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, decimal.Decimal):
+            return float(obj)
+        return JSONEncoder.default(self, obj)
 
 @bp.route('/')
 @jwt_required()
@@ -50,6 +58,7 @@ def send():
             db_execute(command, params, True)
             return ('', 204)
 
+    current_app.json_encoder = JsonEncoder
     return jsonify(get_route_dict(locations),videos)
 
 @bp.route('/edit/<int:id>', methods=['POST'])

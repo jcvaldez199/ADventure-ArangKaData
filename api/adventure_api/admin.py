@@ -9,7 +9,7 @@ from werkzeug.utils import secure_filename
 import functools
 import gpxpy
 import gpxpy.gpx
-import os
+import os, ast
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -129,10 +129,18 @@ def logout():
 #
 #
 
-@bp.route('/route', methods=('GET','POST'))
+@bp.route('/test', methods=['GET'])
 @login_required
-def route():
+def leaftest():
+    ret_pts = []
+    for x in get_gps_collection().find({"routename":'EDSA'},{"_id":0,"loc":1}):
+        ret_pts.append(x["loc"])
+    center=ret_pts[len(ret_pts)//2]
+    return render_template('admin/leaftest.html', coords=ret_pts, center=center)
 
+@bp.route('/upload_route', methods=('GET','POST'))
+@login_required
+def upload_gpx_file():
     if request.method == 'POST':
         if 'file' not in request.files:
             flash('No file part')
@@ -144,19 +152,42 @@ def route():
         else:
             routename = file.filename
             filepath = save_route(file)
-            commit_route(filepath, routename)
-            return redirect(url_for('admin.index'))
+            insertlist = generate_points(filepath, routename)
+            ret_pts = [ x["loc"] for x in insertlist ]
+            center=ret_pts[len(ret_pts)//2]
+            return render_template('admin/showroute.html',coords=ret_pts, center=center)
+    return render_template('admin/route.html')
 
+@bp.route('/show_route', methods=['POST'])
+@login_required
+def commit_route():
+    if request.method == 'POST':
+        if 'routename' not in request.form:
+            flash('No routename')
+            return redirect(request.url)
+        else:
+            routename = request.form['routename']
+            coords = ast.literal_eval(request.form["coords"])
+            insertlist = [{"loc":point, "routename":routename} for point in coords ]
+            get_gps_collection().insert_many(insertlist)
+
+            # insert route
             command = """INSERT INTO route (name)
                          VALUES (%(name)s);
                       """
             params = {'name':routename}
             db_execute(command, params, True)
-            flash('Video successfully uploaded and displayed below')
-            return redirect(url_for('admin.index'))
-    return render_template('admin/route.html')
 
-def commit_route(gpx_file_location, routename):
+            ## insert location
+            #command = """INSERT INTO location (name)
+            #             VALUES (%(name)s);
+            #          """
+            #params = {'name':routename}
+            #db_execute(command, params, True)
+            flash('Successfully uploaded GPX file')
+            return redirect(url_for('admin.index'))
+
+def generate_points(gpx_file_location, routename):
     """
     Parses GPX file to output array of objects
     """
@@ -174,13 +205,11 @@ def commit_route(gpx_file_location, routename):
     # filter unique points based on time
     unique_points = list({point['time']:[point['latitude'], point['longitude']] for point in points}.values())
     insertlist = [ {"loc":point, "routename":routename} for point in unique_points ]
-    get_gps_collection().insert_many(insertlist)
     f.close()
+    return insertlist
 
 def save_route(file):
-
     filename = secure_filename(file.filename)
     filepath = os.path.join(current_app.config['VIDEOS'], filename)
     file.save(filepath)
-
     return filepath

@@ -1,0 +1,8 @@
+#llmap {
+    height: 60vh;
+     width: 60vw;
+ }
+
+.flex-container {
+  display: flex;
+}
