@@ -74,6 +74,9 @@ def create_app(test_config=None):
     from . import route
     app.register_blueprint(route.bp)
 
+    from . import location
+    app.register_blueprint(location.bp)
+
     from . import admin
     app.register_blueprint(admin.bp)
 

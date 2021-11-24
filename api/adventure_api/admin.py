@@ -179,11 +179,20 @@ def commit_route():
             db_execute(command, params, True)
 
             ## insert location
-            #command = """INSERT INTO location (name)
-            #             VALUES (%(name)s);
-            #          """
-            #params = {'name':routename}
-            #db_execute(command, params, True)
+            customer_command = 'SELECT * FROM customer'
+            customers = db_execute(customer_command, {}).fetchall()
+            for c in customers:
+                command = """INSERT INTO location (userid, locname, routename, startindex, lastindex)
+                             VALUES (%(userid)s, %(locname)s, %(routename)s, %(startindex)s, %(lastindex)s);
+                          """
+                params = {
+                    'userid'     :c['id'],
+                    'locname'    :"ENTIRE",
+                    'routename'  :routename,
+                    'startindex' :0,
+                    'lastindex'  :len(insertlist) -1
+                }
+                db_execute(command, params, True)
             flash('Successfully uploaded GPX file')
             return redirect(url_for('admin.index'))
 

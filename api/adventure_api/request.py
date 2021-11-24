@@ -94,7 +94,6 @@ def get_route_dict(location_dict):
     route_dict = {}
     for loc in location_dict:
         route_dict.setdefault(loc["routename"],[]).append(loc)
-
     return route_dict
 
 def get_request(id):

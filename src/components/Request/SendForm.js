@@ -3,6 +3,7 @@ import { Button, Form, Row, Col } from 'react-bootstrap'
 import axios from 'axios'
 import { RequestSendUrl } from '../config'
 import { RouteUrlBase } from '../config'
+import { VideoPostUrl, LocationSendUrl } from '../config'
 import { MapContainer, TileLayer, FeatureGroup , CircleMarker, Circle, useMap, setView } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css';
 
@@ -26,14 +27,17 @@ function SendForm() {
   const blueOptions = { color : 'blue' };
   const [currColor, setColor] = useState({ color : 'red' });
   const [currBorder, setBorder] = useState([]);
+  const [postBorder, setPostBorder] = useState([]);
 
   const [newLoc, setNewLoc] = useState(true);
   const [modeSwitchNewLoc, setModeSwitch] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState(null);
 
+  const [videoUpload, setUpload] = useState(true);
 
   if (currBorder.length > 1 || modeSwitchNewLoc) {
     setMap(retrieveMapDetails(selectedRoute));
+    setPostBorder(currBorder);
     setBorder([]);
     setModeSwitch(false);
   }
@@ -86,18 +90,73 @@ function SendForm() {
       });
   }, []);
 
-  function postRequest(event) {
+  function postForm(event) {
     event.preventDefault()
-    axios.post(RequestSendUrl, 
-      {
-        video: event.target.elements.formVideos.value,
-        location: event.target.elements.formLocation.value,
-        route: event.target.elements.formRoute.value
-      },
-      { headers: 
-        { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    if (newLoc) {
+
+      if (postBorder.length != 2) {
+        // bring up a modal
+        console.log("invalid border", currBorder);
+        return null
       }
-    )
+
+      axios.post(LocationSendUrl, 
+        {
+          location: event.target.elements.formLocation.value,
+          route: event.target.elements.formRoute.value,
+          startindex: postBorder[0],
+          lastindex: postBorder[1]
+        },
+        { headers: 
+          { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        }
+      ).then(response => {
+          postVideo(event, response.data['locname']);
+      });
+
+    } else {
+      postVideo(event, event.target.elements.formLocation.value);
+    }
+  }
+
+  function postVideo(event, locationName) {
+    const headerObj = {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    };
+    var formData = new FormData();
+    if (videoUpload) {
+      formData.append("file", event.target.elements.vidfile.files[0]);
+      axios.post(VideoPostUrl, formData, headerObj)
+        .then(response => {
+          postRequestBase(
+            response.data['filename'],
+            locationName,
+            event.target.elements.formRoute.value
+          );
+      });
+    } else {
+        postRequestBase(
+          event.target.elements.formVideos.value,
+          locationName,
+          event.target.elements.formRoute.value
+        );
+    }
+  }
+
+  function postRequestBase(vid, loc, rt) {
+      axios.post(RequestSendUrl, 
+        {
+          video: vid,
+          location: loc,
+          route: rt
+        },
+        { headers: 
+          { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        }
+      )
       .then((response) => {
         window.location.reload();
       });
@@ -122,7 +181,7 @@ function SendForm() {
     <div>
     <Row>
      <Col>
-        <Form onSubmit={postRequest}>
+        <Form onSubmit={postForm}>
           <Form.Group as={Row} controlId="formRoute">
             <Form.Label column sm={2}> Route </Form.Label>
             <Col sm={10}>
@@ -193,13 +252,24 @@ function SendForm() {
 
           <Form.Group as={Row} controlId="formVideos">
             <Form.Label column sm={2}> Videos </Form.Label>
-            <Col sm={10}>
-               <Form.Control as="select" defaultValue="Choose...">
-                  { !(videos == null) &&
-                    videos.map(item => (
-                      <option>{item.filename}</option>
-                    ))}
-              </Form.Control>
+            <Col sm={7}>
+              { (!videoUpload) 
+                ?
+                  <Form.Control as="select" defaultValue="Choose...">
+                    { (videos != null) && 
+                       videos.map(item => (
+                         <option>{item.filename}</option>
+                       ))
+                    }
+                  </Form.Control>
+                :
+                  <Form.File id="vidfile"/>
+              }
+            </Col>
+            <Col>
+              <Button onClick={()=>{setUpload(oldstate => (!oldstate));}}>
+                {(!videoUpload) ? "Upload New" : "Use Existing"}
+              </Button>
             </Col>
           </Form.Group>
 

@@ -4,6 +4,7 @@ export const AuthUrlBase    = UrlBase.concat("/auth")
 export const RouteUrlBase    = UrlBase.concat("/route")
 export const VideoUrlBase   = UrlBase.concat("/video")
 export const RequestUrlBase = UrlBase.concat("/request")
+export const LocationUrlBase = UrlBase.concat("/location")
 
 // Customer Auth Urls
 export const CustomerLoginUrl    = AuthUrlBase.concat("/login")
@@ -19,3 +20,6 @@ export const RequestEditUrl = RequestUrlBase.concat("/edit/")
 
 // Admin Auth Urls
 export const AdminLoginUrl    = AuthUrlBase.concat("/admin_login")
+
+// Location Urls
+export const LocationSendUrl = LocationUrlBase.concat("/send")
