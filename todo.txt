@@ -7,6 +7,14 @@
 - Bug with video uploads S3 -> make a folder per user
 - Throw error if thumbnail cant be generated
 - Make a handler that determines whether its file or JSON response for displaying videos on non=S3 on frontend
+- Fix S3 to non S3 mechanism
+
+FUNCTIONALITY 1
+- must access DB from a config
+
+
+- Better RPI script downloader
+- Make sure videos dont have '-', because rpi script delimits this
 
 - Clean SendForm codebase
 - Add marker popups on locations (UI improvement)

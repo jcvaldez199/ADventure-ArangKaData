@@ -83,4 +83,7 @@ def create_app(test_config=None):
     from . import request
     app.register_blueprint(request.bp)
 
+    from . import gpspoint
+    app.register_blueprint(gpspoint.bp)
+
     return app

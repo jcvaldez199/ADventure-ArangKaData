@@ -25,6 +25,14 @@ def index():
     requests = db_execute(command, params).fetchall()
     return jsonify(requests)
 
+# TEMPORARY ALL ROUTE
+@bp.route('/all')
+def show_all():
+    command = 'SELECT * FROM request WHERE approved = True'
+    params = {}
+    requests = db_execute(command, params).fetchall()
+    return jsonify(requests)
+
 @bp.route('/send', methods=('GET', 'POST'))
 @jwt_required()
 def send():

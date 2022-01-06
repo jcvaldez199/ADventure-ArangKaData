@@ -110,3 +110,22 @@ def display_vid(filename):
         return redirect(gen_url, code=302)
     return send_file(current_app.config['VIDEOS']+"/"+filename)
 
+
+# SHOULD APPLY VALIDATION FIXES CURRENTLY THIS IS VERY DANGEROUS
+@bp.route('/delete/<filename>')
+@jwt_required()
+def delete_vid(filename):
+    if eval(current_app.config["USE_S3"]):
+        s3 = boto3.client('s3')
+        return '',200
+
+    command = """ DELETE FROM video
+                  WHERE filename = %(filename)s AND
+                  userid = %(userid)s;
+              """
+    params = {'filename':filname,
+              'userid':get_jwt_identity()}
+    db_execute(command, params, True)
+    return '',200
+
+

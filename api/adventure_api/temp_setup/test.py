@@ -16,13 +16,13 @@ def setup_db(fname):
     return
 
 
-def edit_customer():
+def edit_customer(userid):
     try:
         command = """ UPDATE customer SET password
                       = %(password)s
-                      WHERE id = 1;
+                      WHERE id = %(userid)s;
                   """
-        params = {'password':generate_password_hash("test")}
+        params = {'password':generate_password_hash("test"), 'userid':userid}
         db_execute(command, params, True).close()
     except Exception as e:
         print(e)
@@ -70,7 +70,8 @@ def fill_collection(routename, filename):
 def test_setup(app):
     with app.app_context():
         setup_db("schema.sql")
-        edit_customer()
+        edit_customer(1)
+        edit_customer(2)
         edit_admin()
         reset_collection()
         fill_collection("EDSA",current_app.config['VIDEOS']+"/EDSA.gpx")
