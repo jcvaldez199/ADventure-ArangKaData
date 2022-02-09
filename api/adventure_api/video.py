@@ -1,10 +1,12 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for, jsonify, session, send_from_directory, current_app, send_file
+    Blueprint,  g, redirect, render_template, request, url_for, jsonify, session, send_from_directory, current_app, send_file
 )
 from werkzeug.exceptions import abort
 from adventure_api.db import get_db, db_execute
 from werkzeug.utils import secure_filename
 from flask_jwt_extended import ( get_jwt_identity, jwt_required )
+
+from .utils import check_valid_filename
 
 import boto3
 import json
@@ -14,10 +16,13 @@ from flask_cors import cross_origin
 
 bp = Blueprint('video', __name__, url_prefix='/video')
 
-
 @bp.route('/')
 @jwt_required()
 def index():
+
+    """ Return all Videos of user in JWT
+    """
+
     db = get_db()
     command = """SELECT * FROM video
                  WHERE userid = %(userid)s;
@@ -29,17 +34,17 @@ def index():
 @bp.route('/upload', methods=['POST'])
 @jwt_required()
 def upload_vid():
+
+    """ Uploads a new Video
+    """
+
     if request.method == 'POST':
         db = get_db()
         if 'file' not in request.files:
-            flash('No file part')
             return redirect(request.url)
         file = request.files['file']
-        if file.filename == '':
-            flash('No image selected for uploading')
-            return redirect(request.url)
-        else:
-            # SAVE VIDEO - returns filename, thumnnailname
+        if (not file.filename == '') and (check_valid_filename(file.filename)):
+            # SAVE VIDEO - returns filename, thumbnailname
             _, thumbnailpath = save_video(file)
 
             fname = file.filename
@@ -51,12 +56,12 @@ def upload_vid():
                       'thumbnail':thumbnailpath
                       }
             db_execute(command, params, True)
-            flash('Video successfully uploaded and displayed below')
             filename = secure_filename(file.filename)
             return jsonify({'filename':fname,'thumbnail':thumbnailpath})
+        else:
+            return jsonify(error=str("Invalid file")), 404
 
 def save_video(file):
-
     filename = secure_filename(file.filename)
     videopath = os.path.join(current_app.config['VIDEOS'], filename)
     thumbnailpath = None
@@ -72,11 +77,9 @@ def save_video(file):
             os.remove(videopath)
         if os.path.exists(tb_path_raw):
             os.remove(tb_path_raw)
-
     return videopath, thumbnailpath
 
 def generate_thumbnail(videopath, videoname):
-
     # remove filename extension and add jpef
     thumbnailpath = videopath[::-1].split(".",1)[-1][::-1] + "_thumbnail.jpeg"
     probe = ffmpeg.probe(videopath)
@@ -96,10 +99,12 @@ def generate_thumbnail(videopath, videoname):
         sys.exit(1)
     return videoname[::-1].split(".",1)[-1][::-1] + "_thumbnail.jpeg"
 
-
-# SHOULD APPLY VALIDATION FIXES CURRENTLY THIS IS VERY DANGEROUS
 @bp.route('/display/<filename>')
 def display_vid(filename):
+
+    """ Displays a video via filename
+    """
+
     if eval(current_app.config["USE_S3"]):
         s3 = boto3.client('s3')
         gen_url = s3.generate_presigned_url(
@@ -108,24 +113,53 @@ def display_vid(filename):
             ExpiresIn=3600
         )
         return redirect(gen_url, code=302)
-    return send_file(current_app.config['VIDEOS']+"/"+filename)
+    return send_file(current_app.config['VIDEOS']+"/"+secure_filename(filename))
 
-
-# SHOULD APPLY VALIDATION FIXES CURRENTLY THIS IS VERY DANGEROUS
 @bp.route('/delete/<filename>')
 @jwt_required()
 def delete_vid(filename):
+
+    """ Deletes a video via filename
+    """
+
     if eval(current_app.config["USE_S3"]):
         s3 = boto3.client('s3')
         return '',200
 
+    fname = secure_filename(filename)
     command = """ DELETE FROM video
-                  WHERE filename = %(filename)s AND
+                  WHERE filename = %(fname)s AND
                   userid = %(userid)s;
               """
-    params = {'filename':filname,
+    params = {'fname':fname,
               'userid':get_jwt_identity()}
     db_execute(command, params, True)
     return '',200
 
+@bp.route('/rename/<filename>')
+@jwt_required()
+def rename_vid(filename):
+
+    """ Renames a video via filename
+    """
+
+    req_form = request.get_json()
+    newname = secure_filename(req_form['newname'])
+    oldname = secure_filename(filename)
+    if (not newname):
+        return jsonify(error=str("Invalid file")), 404
+
+    if eval(current_app.config["USE_S3"]):
+        s3 = boto3.client('s3')
+        return '',200
+
+    command = """ UPDATE video SET filename = %(fname)s
+                  WHERE userid = %(userid)s AND filename = %(oldname)s;
+              """
+    params = {'oldname':oldname,
+              'newname':newname,
+              'userid':get_jwt_identity()
+              }
+    db_execute(command, params, True)
+    return '',200
 

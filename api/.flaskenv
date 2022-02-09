@@ -9,4 +9,4 @@ DB_PORT=5432
 USE_S3=False
 USE_RDS=False
 S3_BUCKET_NAME=adventuretestbucket
-
+ALLOWED_FILENAMES=["mp4","mov","avi","mkv"]

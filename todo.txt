@@ -1,32 +1,39 @@
-- Make sure that the border in postForm in SendForm always have valid values
-- Add field validator for all api routes
-- Ensure that query to mongodb is sorted by index (add an index field to the GPS points)
-- Fix login timeout mechanism
+API
+- Change save_video to utilize redis instead
+- Add the Rest of CRUD funcs for api
 - create default location when uploading route GPX
 - route saving, change directory from VIDEOS
-- Bug with video uploads S3 -> make a folder per user
 - Throw error if thumbnail cant be generated
-- Make a handler that determines whether its file or JSON response for displaying videos on non=S3 on frontend
 - Fix S3 to non S3 mechanism
-
-FUNCTIONALITY 1
+- Ensure that query to mongodb is sorted by index (add an index field to the GPS points)
+- Bug with video uploads S3 -> make a folder per user
 - must access DB from a config
 
-
+RPI
 - Better RPI script downloader
 - Make sure videos dont have '-', because rpi script delimits this
 
+Frontend
+- Video Manager
+  - Feedback that video is uploading on video Manager
+  - Create a better looking video manager
+  - Add Delete, Rename, Sorting for Videos
+- Make sure that the border in postForm in SendForm always have valid values
+- Add field validator for all api routes
+- Fix login timeout mechanism
 - Clean SendForm codebase
 - Add marker popups on locations (UI improvement)
-- Remove Flash alerts on admin side of app
-- Admin Alerts if no pending requests
 - Smoother animations
-- Add the Rest of CRUD funcs for api
-- Rearrange PrivateRoute Directories
-- Add Empty Requests Notif
-- Add modal alerts for Editing and Creating
 - Fix BG color
 - Location Map
+- Add modal alerts for Editing and Creating
+- Rearrange PrivateRoute Directories
+- Add Empty Requests Notif
+- Make a handler that determines whether its file or JSON response for displaying videos on non=S3 on frontend
+
+Admin side
+- Remove Flash alerts on admin side of app
+- Admin Alerts if no pending requests
 
 
 Prod changes
@@ -35,3 +42,7 @@ Prod changes
 - Change DB engine to SQLalchemy to avoid sql injections
 - create a more appropriate token mechanism compared to localstorage
 - Host both on same port
+
+
+Issues
+- All uploaded files are viewable by ANYONE, is this ok?

@@ -41,6 +41,7 @@ def create_app(test_config=None):
         DB_USER=os.environ.get("DB_USER"),
         USE_S3=os.environ.get("USE_S3"),
         USE_RDS=os.environ.get("USE_RDS"),
+        ALLOWED_FILENAMES=os.environ.get("ALLOWED_FILENAMES"),
         S3_BUCKET_NAME=os.environ.get("S3_BUCKET_NAME"),
     )
     app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix='/api')
