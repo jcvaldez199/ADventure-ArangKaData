@@ -94,6 +94,6 @@ INSERT INTO video (filename, userid, thumbnail) VALUES ('fumo_balls.mp4', 2, 'fu
 
 INSERT INTO request (routename, userid, videoname, locname, approved) VALUES ('EDSA', 1, 'minecraft.mp4', 'Entire', True);
 INSERT INTO request (routename, userid, videoname, locname, approved) VALUES ('CRMT', 1, 'minecraft.mp4', 'Entire', False);
-INSERT INTO request (routename, userid, videoname, locname, approved) VALUES ('EDSA', 2, 'fumo_balls.mp4', 'EDSA Generic', True);
-INSERT INTO request (routename, userid, videoname, locname, approved) VALUES ('CRMT', 2, 'fumo_balls.mp4', 'CRMT Generic', True);
+INSERT INTO request (routename, userid, videoname, locname, approved) VALUES ('EDSA', 2, 'fumo_balls.mp4', 'EDSA Generic', False);
+INSERT INTO request (routename, userid, videoname, locname, approved) VALUES ('CRMT', 2, 'fumo_balls.mp4', 'CRMT Generic', False);
 
