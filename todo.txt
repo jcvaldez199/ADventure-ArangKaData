@@ -8,6 +8,7 @@ API
 - Ensure that query to mongodb is sorted by index (add an index field to the GPS points)
 - Bug with video uploads S3 -> make a folder per user
 - must access DB from a config
+- change RPI ID into random string
 
 RPI
 - Better RPI script downloader

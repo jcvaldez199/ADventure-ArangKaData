@@ -212,8 +212,8 @@ def generate_points(gpx_file_location, routename):
                     'time': point.time,
                 })
     # filter unique points based on time
-    unique_points = list({point['time']:[point['latitude'], point['longitude']] for point in points}.values())
-    insertlist = [ {"loc":point, "routename":routename} for point in unique_points ]
+    unique_points = list({point['time']:[point['longitude'], point['latitude']] for point in points}.values())
+    insertlist = [ {"locindex": idx, "loc":point, "routename":routename} for idx, point in enumerate(unique_points) ]
     f.close()
     return insertlist
 

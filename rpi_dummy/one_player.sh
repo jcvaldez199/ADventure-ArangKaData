@@ -1,6 +1,9 @@
 #!/bin/bash
 
-#/bin/vlc-wrapper --loop /home/pi/Desktop/rpi_dummy/videos
+BASE_DIR=/home/pi/Desktop/rpi_dummy
+BASE_DIR=.
+
+/bin/bash $BASE_DIR/getter.sh > /dev/null 2>&1 &
 figlet -f standard -c  "ARANGKADATA copyright 2022"
 figlet -f mini -k  "Video player would start automatically in 10 seconds"
 ctr=10
@@ -11,12 +14,7 @@ do
 	sleep 1;
 	ctr=$(($ctr - 1))
 done
-exit 1;
 
 #read -p "Press any button to continue"
-#/usr/bin/python3 /home/pi/Desktop/rpi_dummy/1.py
-/usr/bin/vlc --fullscreen --play-and-exit /home/pi/Desktop/rpi_dummy/videos/1-minecraft.mp4
-
-#while read localname; do
-#  vlc --fullscreen --play-and-stop ./videos/$localname
-#done <video_list
+#/usr/bin/vlc --fullscreen --play-and-exit /home/pi/Desktop/rpi_dummy/videos/1-minecraft.mp4
+/usr/bin/python3 $BASE_DIR/rpi_dummy/1.py > /dev/null 2>&1

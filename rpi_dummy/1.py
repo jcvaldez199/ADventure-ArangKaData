@@ -3,6 +3,7 @@ import time, vlc
 
 BASE_DIR='/home/pi/Desktop/rpi_dummy'
 BASE_DIR='.'
+TEMP_DIR=BASE_DIR+'/tempfiles'
 
 vlc_instance = vlc.Instance()
 
@@ -22,11 +23,22 @@ list_player.play()
 #time.sleep(20)
 
 while 1:
-    video_file = open(BASE_DIR+'/video_list', 'r')
+
+    # CHECK CURRENT LOCATION
+    location_file = open(TEMP_DIR+'/currentlocation', 'r')
+    curr_loc = []
+    for line in location_file:
+        curr_loc.append(line)
+    location_file.close()
+
+    video_file = open(TEMP_DIR+'/video_list', 'r')
     media_list = vlc.MediaList()
     for line in video_file:
         #vids = vlc_instance.media_new(BASE_DIR+"/videos/"+line.rstrip())
-        media_list.add_media(BASE_DIR+"/videos/"+line.rstrip())
+        for location in curr_loc:
+            if location == line.split('-')[0]:
+                media_list.add_media(BASE_DIR+"/videos/"+line.rstrip())
+                break
     list_player.set_media_list(media_list)
     video_file.close()
 

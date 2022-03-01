@@ -62,9 +62,10 @@ def fill_collection(routename, filename):
                     'time': point.time,
                 })
     # filter unique points based on time
-    unique_points = list({point['time']:[point['latitude'], point['longitude']] for point in points}.values())
-    insertlist = [ {"loc":point, "routename":routename} for point in unique_points ]
+    unique_points = list({point['time']:[point['longitude'], point['latitude']] for point in points}.values())
+    insertlist = [ {"locindex":idx, "loc":point, "routename":routename} for idx, point in enumerate(unique_points) ]
     get_gps_collection().insert_many(insertlist)
+    get_gps_collection().create_index( [ ("loc","2dsphere"), ("locindex",1) ] )
     f.close()
 
 def test_setup(app):
