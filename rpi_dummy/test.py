@@ -1,8 +1,8 @@
 # importing time and vlc
 import time, vlc
 
-BASE_DIR='.'
 BASE_DIR='/home/pi/Desktop/rpi_dummy'
+BASE_DIR='.'
 TEMP_DIR=BASE_DIR+'/tempfiles'
 
 vlc_instance = vlc.Instance()
@@ -36,6 +36,7 @@ while 1:
     for line in video_file:
         #vids = vlc_instance.media_new(BASE_DIR+"/videos/"+line.rstrip())
         for location in curr_loc:
+            print(line.split('-')[0])
             if location == line.split('-')[0]:
                 media_list.add_media(BASE_DIR+"/videos/"+line.rstrip())
                 break
@@ -43,10 +44,10 @@ while 1:
     video_file.close()
 
     player.set_fullscreen(True)
-    list_player.next()
+    #list_player.next()
     time.sleep(2)
-    while player.is_playing():
-        time.sleep(0.5)
+    #while player.is_playing():
+    #    time.sleep(0.5)
 
     #for line in video_file:
     #    player.set_fullscreen(True)

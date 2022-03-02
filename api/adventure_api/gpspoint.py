@@ -51,33 +51,57 @@ def post_gps(id, latitude, longitude):
                               WHERE routename   = %(routename)s
                                 AND startindex <= %(locindex)s
                                 AND lastindex  >= %(locindex)s
-                                AND locname    != 'Entire'
                           """
             params = {'routename':routename,
                       'locindex':locindex
                       }
             locnames = db_execute(loc_command, params).fetchall()
+            # TODO: GPS tracker for vehicles
+            command = """ UPDATE gpspoint
+                          SET (id, latitude, longitude, altitude, speed, course)
+                          = (%(id)s, %(latitude)s, %(longitude)s, %(altitude)s, %(speed)s, %(course)s);
+                      """
+            params = {'id':id,
+                      #'date_created':transform_date(measuretime, measuredate),
+                      'latitude':latitude,
+                      'longitude':longitude,
+                      'altitude':0,
+                      'speed':0,
+                      'course':10
+                      }
+            db_execute(command, params, True)
             return jsonify(locnames)
         return 'error', 200
 
 
-        # TODO: GPS tracker for vehicles
+        ## TODO: GPS tracker for vehicles
         #command = """ INSERT INTO gpspoint
-        #              (id, date_created, latitude, longitude, altitude, speed, course)
+        #              (id, latitude, longitude, altitude, speed, course)
         #              VALUES
-        #              (%(id)s, %(date_created)s, %(latitude)s, %(longitude)s, %(altitude)s, %(speed)s, %(course)s);
+        #              (%(id)s, %(latitude)s, %(longitude)s, %(altitude)s, %(speed)s, %(course)s);
         #          """
         #params = {'id':id,
-        #          'date_created':transform_date(measuretime, measuredate),
+        #          #'date_created':transform_date(measuretime, measuredate),
         #          'latitude':latitude,
         #          'longitude':longitude,
-        #          'altitude':altitude,
-        #          'speed':speed,
-        #          'course':course
+        #          'altitude':0,
+        #          'speed':0,
+        #          'course':0
         #          }
         #db_execute(command, params, True)
     return '',200
 
+@bp.route('/current/<int:id>', methods=['GET'])
+def current_loc(id):
+    if request.method == 'GET':
+
+        # TODO: GPS tracker for vehicles
+        command = """ SELECT (latitude, longitude) FROM gpspoint
+                      WHERE id = %(id)s;
+                  """
+        params = {'id':str(id)}
+        ret_val = db_execute(command, params).fetchone()
+    return jsonify(ret_val)
 
 def transform_date(measuretime, measuredate):
     return datetime.strptime(measuredate+" "+measuretime, '%Y-%m-%d %H:%M:%S')

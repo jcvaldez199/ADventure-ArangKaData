@@ -1,9 +1,9 @@
 #!/bin/bash
 
-BASE_DIR=/home/pi/Desktop/rpi_dummy
 BASE_DIR=.
-BASE_URL=192.168.254.115
+BASE_DIR=/home/pi/Desktop/rpi_dummy
 BASE_URL=localhost
+BASE_URL=192.168.254.104
 
 cd $BASE_DIR/tempfiles
 mkdir -p  videos;

@@ -4,6 +4,7 @@ BASE_DIR=/home/pi/Desktop/rpi_dummy
 BASE_DIR=.
 
 /bin/bash $BASE_DIR/getter.sh > /dev/null 2>&1 &
+/bin/bash $BASE_DIR/test_sender.sh > /dev/null 2>&1 &
 figlet -f standard -c  "ARANGKADATA copyright 2022"
 figlet -f mini -k  "Video player would start automatically in 10 seconds"
 ctr=10

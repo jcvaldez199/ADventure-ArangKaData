@@ -25,7 +25,7 @@ CREATE TABLE route (
 
 CREATE TABLE gpspoint (
   id VARCHAR(15) PRIMARY KEY,
-  CHECK (length(id) >= 8),
+  --CHECK (length(id) >= 8),
   date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   latitude NUMERIC,
   longitude NUMERIC,
@@ -34,6 +34,7 @@ CREATE TABLE gpspoint (
   course NUMERIC,
   CHECK (course > 0),
   CHECK (course <= 360)
+
   --routename VARCHAR(50),
   --pointindex INTEGER DEFAULT -1,
   --FOREIGN KEY (routename) REFERENCES route (name),
@@ -92,8 +93,8 @@ INSERT INTO rpi (routename) VALUES ('EDSA');
 
 INSERT INTO location (userid, locname, routename, startindex, lastindex) VALUES (1,'Entire','EDSA',0,852);
 INSERT INTO location (userid, locname, routename, startindex, lastindex) VALUES (1,'Entire','CRMT',0,562);
-INSERT INTO location (userid, locname, routename, startindex, lastindex) VALUES (1,'EDSA Test Location 1','EDSA',100,350);
-INSERT INTO location (userid, locname, routename, startindex, lastindex) VALUES (1,'EDSA Test Location 2','EDSA',200,500);
+INSERT INTO location (userid, locname, routename, startindex, lastindex) VALUES (1,'EDSA Test Location 1','EDSA',200,600);
+INSERT INTO location (userid, locname, routename, startindex, lastindex) VALUES (1,'EDSA Test Location 2','EDSA',400,800);
 
 INSERT INTO location (userid, locname, routename, startindex, lastindex) VALUES (2,'EDSA Generic','EDSA',100,350);
 INSERT INTO location (userid, locname, routename, startindex, lastindex) VALUES (2,'CRMT Generic','CRMT',100,350);
@@ -107,8 +108,10 @@ INSERT INTO video (filename, userid, thumbnail) VALUES ('cow.mp4', 1, 'cow_thumb
 
 INSERT INTO request (routename, userid, videoname, locname, approved) VALUES ('EDSA', 1, 'minecraft.mp4', 'Entire', True);
 INSERT INTO request (routename, userid, videoname, locname, approved) VALUES ('CRMT', 1, 'minecraft.mp4', 'Entire', False);
-INSERT INTO request (routename, userid, videoname, locname, approved) VALUES ('EDSA', 2, 'fumo_balls.mp4', 'EDSA Generic', False);
-INSERT INTO request (routename, userid, videoname, locname, approved) VALUES ('CRMT', 2, 'fumo_balls.mp4', 'CRMT Generic', False);
+--INSERT INTO request (routename, userid, videoname, locname, approved) VALUES ('EDSA', 2, 'fumo_balls.mp4', 'EDSA Generic', False);
+--INSERT INTO request (routename, userid, videoname, locname, approved) VALUES ('CRMT', 2, 'fumo_balls.mp4', 'CRMT Generic', False);
 
 INSERT INTO request (routename, userid, videoname, locname, approved) VALUES ('EDSA', 1, 'fumo_balls.mp4', 'EDSA Test Location 1', True);
 INSERT INTO request (routename, userid, videoname, locname, approved) VALUES ('EDSA', 1, 'cow.mp4', 'EDSA Test Location 2', True);
+
+INSERT INTO gpspoint (id, course) VALUES (1, 20);
