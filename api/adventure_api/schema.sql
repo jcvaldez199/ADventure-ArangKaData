@@ -70,6 +70,7 @@ CREATE TABLE request (
   id SERIAL PRIMARY KEY,
   routename TEXT NOT NULL,
   userid INTEGER NOT NULL, 
+  play_counter INTEGER NOT NULL DEFAULT 0, 
   videoname VARCHAR(50) NOT NULL,
   locname VARCHAR(50) NOT NULL,
   date_decision TIMESTAMP,

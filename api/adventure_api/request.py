@@ -154,3 +154,14 @@ def get_locations():
     ).fetchall()
     return locations
 
+@bp.route('/play_counter_increment/<int:id>', methods=['GET'])
+def play_counter_increment(id):
+    # TODO: Add some kind of validation for the RPI requesting this resource
+    if request.method == 'GET':
+        command = """ UPDATE request
+                      SET play_counter = play_counter + 1
+                      WHERE id = %(id)s;
+                  """
+        params = {'id':id}
+        db_execute(command, params, True)
+        return ('', 204)

@@ -195,6 +195,10 @@ function RequestDescription(props) {
                     </td>
                   </tr>
                   <tr>
+                    <td>Play counter</td>
+                    <td>{props.item.play_counter}</td>
+                  </tr>
+                  <tr>
                     <td>Remarks</td>
                     <td>{props.item.remarks}</td>
                   </tr>
