@@ -151,7 +151,7 @@ def upload_gpx_file():
             return redirect(request.url)
         else:
             routename = file.filename
-            filepath = save_route(file)
+            filepath = rpiute(file)
             insertlist = generate_points(filepath, routename)
             ret_pts = [ x["loc"] for x in insertlist ]
             center=ret_pts[len(ret_pts)//2]
@@ -222,3 +222,59 @@ def save_route(file):
     filepath = os.path.join(current_app.config['VIDEOS'], filename)
     file.save(filepath)
     return filepath
+
+
+# RPI STUFF
+
+@bp.route('/rpi', methods=['GET'])
+@login_required
+def rpi_handler():
+    command = """SELECT id FROM rpi;
+              """
+    rpis = db_execute(command, {}).fetchall()
+    return render_template('admin/rpi.html', rpis=rpis)
+
+@bp.route('/<int:id>/rpi_show', methods=('GET', 'POST'))
+@login_required
+def rpi_show(id):
+
+    def get_rpi(id):
+        command = """ SELECT *
+                      FROM rpi
+                      WHERE id = %(id)s;"""
+        params = {'id':id}
+        rpi = db_execute(command, params).fetchone()
+        return rpi
+
+    def get_routes():
+        command = """ SELECT * FROM route;
+                  """
+        routes = db_execute(command, {}).fetchall()
+        return routes
+
+    rpi = get_rpi(id)
+    routes = get_routes()
+    if request.method == 'POST':
+        newroute = request.form['newroute']
+        error = None
+
+        if (not newroute):
+            error = 'missing field.'
+
+        if error is not None:
+            flash(error)
+
+        else:
+            command = """ UPDATE rpi SET routename
+                          = %(newroute)s
+                          WHERE id = %(id)s;
+                      """
+            params = {'newroute':newroute
+                      ,'id':id
+                     }
+            db_execute(command, params, True)
+            return redirect(url_for('admin.rpi_handler'))
+    return render_template('admin/rpi_show.html', rpi=rpi, routes=routes)
+
+
+

@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Hello {{ g.user['username'] }}{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <header>
+    <h1>Request {{ rpi['id'] }}</h1>
+  </header>
+ <dl>
+   <dt>RPI ID</dt>
+     <dd>{{ rpi['id'] }}</dd>
+   <dt>Currently assigned route</dt>
+     <dd>{{ rpi['routename'] }}</dd>
+ </dl> 
+  <form method="post">
+     <label for="newroute">New Route</label>
+        <select name="newroute">
+          {% for r in routes %}
+            <option value="{{ r['name'] }}" SELECTED>{{ r['name'] }}</option>
+          {% endfor %}
+        </select>
+     <input type="submit" value="Send">
+  </form>
+{% endblock %}

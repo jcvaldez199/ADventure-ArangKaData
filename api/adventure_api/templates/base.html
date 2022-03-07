@@ -5,6 +5,9 @@
   <h1>ADventure</h1>
   <ul>
     {% if g.user %}
+      <li><a class="action" href="{{ url_for('admin.index') }}">Return to Index</a>
+      <li><a class="action" href="{{ url_for('admin.upload_gpx_file') }}">Upload GPX file</a>
+      <li><a class="action" href="{{ url_for('admin.rpi_handler') }}">RPI management</a>
       <li><span>{{ g.user['username'] }}</span>
       <li><a href="{{ url_for('admin.logout') }}">Log Out</a>
     {% endif %}
