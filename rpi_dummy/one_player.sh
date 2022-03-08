@@ -1,10 +1,10 @@
 #!/bin/bash
 
-BASE_DIR=/home/pi/Desktop/rpi_dummy
-BASE_DIR=.
+BASE_PATH=.
+BASE_PATH=/home/pi/Desktop/rpi_dummy
 
-/bin/bash $BASE_DIR/getter.sh > /dev/null 2>&1 &
-/bin/bash $BASE_DIR/test_sender.sh > /dev/null 2>&1 &
+/bin/bash $BASE_PATH/getter.sh $BASE_PATH/default.conf > /dev/null 2>&1 &
+/bin/bash $BASE_PATH/gpssender.sh $BASE_PATH/default.conf > /dev/null 2>&1 &
 figlet -f standard -c  "ARANGKADATA copyright 2022"
 figlet -f mini -k  "Video player would start automatically in 10 seconds"
 ctr=10
@@ -18,4 +18,5 @@ done
 
 #read -p "Press any button to continue"
 #/usr/bin/vlc --fullscreen --play-and-exit /home/pi/Desktop/rpi_dummy/videos/1-minecraft.mp4
-/usr/bin/python3 $BASE_DIR/rpi_dummy/1.py > /dev/null 2>&1
+printf '%*s' 100 | tr ' ' '\n'
+/usr/bin/python3 $BASE_PATH/1.py $BASE_PATH/default.conf > /dev/null 2>&1

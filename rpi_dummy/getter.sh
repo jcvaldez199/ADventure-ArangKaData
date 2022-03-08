@@ -1,11 +1,8 @@
 #!/bin/bash
 
-BASE_DIR=.
-BASE_DIR=/home/pi/Desktop/rpi_dummy
-BASE_URL=localhost
-BASE_URL=192.168.254.104
+source $1
 
-cd $BASE_DIR/tempfiles
+cd $BASE_PATH/tempfiles
 mkdir -p  videos;
 > video_list_temp
 > video_diff
@@ -13,8 +10,8 @@ mkdir -p  videos;
 
 while :
 do
-  curl -X GET -s $BASE_URL:5000/api/request/all \
-    | jq -rc '.[] | .locname+"-"+(.userid|tostring)+"-"+.videoname' \
+  curl -X GET -s $BASE_URL/api/request/all \
+    | jq -rc '.[] | .locname+"-"+(.userid|tostring)+"-"+(.id|tostring)+"-"+.videoname' \
     | sed 's/ /_/g' \
     | awk '!seen[$0]++' > video_list_temp
 
@@ -23,7 +20,7 @@ do
   if ! [ -s video_list ]; then cat video_list_temp >video_diff; else awk 'NR==FNR{a[$0]=1;next}!a[$0]' video_list video_list_temp > video_diff; fi
   while read localname; do
     fname=$(echo "$localname" | awk '{n=split($0,a,"-"); print a[n]}')
-    wget --quiet -O $BASE_DIR/videos/$localname $BASE_URL:5000/api/video/display/$(echo $fname) 
+    wget --quiet -O $BASE_PATH/videos/$localname $BASE_URL/api/video/display/$(echo $fname) 
   done < video_diff
 
   cat video_list_temp >video_list

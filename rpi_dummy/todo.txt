@@ -1,3 +1,4 @@
 1. Fix config file handling
 2. Have fallback for when server cant be accessed for GPS coord inquiry
 3. Better File name handling
+4. have naming convention for the video files be defined in the config file

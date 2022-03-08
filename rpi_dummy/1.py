@@ -1,9 +1,14 @@
 # importing time and vlc
-import time, vlc
+import time, vlc, sys, requests
 
-BASE_DIR='.'
-BASE_DIR='/home/pi/Desktop/rpi_dummy'
-TEMP_DIR=BASE_DIR+'/tempfiles'
+# LOAD CONFIG FILE
+config = {}
+with open(sys.argv[1], 'r') as configfile:
+    for line in configfile:
+        s=line.rstrip().split('=')
+        config[s[0]] = s[1]
+
+TEMP_DIR=config['BASE_PATH']+'/tempfiles'
 
 vlc_instance = vlc.Instance()
 
@@ -25,6 +30,7 @@ list_player.play()
 while 1:
 
     # CHECK CURRENT LOCATION
+    incremented_requests = []
     location_file = open(TEMP_DIR+'/currentlocation', 'r')
     curr_loc = []
     for line in location_file:
@@ -34,10 +40,12 @@ while 1:
     video_file = open(TEMP_DIR+'/video_list', 'r')
     media_list = vlc.MediaList()
     for line in video_file:
-        #vids = vlc_instance.media_new(BASE_DIR+"/videos/"+line.rstrip())
+        #vids = vlc_instance.media_new(config['BASE_PATH']+"/videos/"+line.rstrip())
         for location in curr_loc:
             if location == line.split('-')[0]:
-                media_list.add_media(BASE_DIR+"/videos/"+line.rstrip())
+                media_list.add_media(config['BASE_PATH']+"/videos/"+line.rstrip())
+                # increment video played
+                incremented_requests.append(line.split('-')[2])
                 break
     list_player.set_media_list(media_list)
     video_file.close()
@@ -46,7 +54,11 @@ while 1:
     list_player.next()
     time.sleep(2)
     while player.is_playing():
+        for req in incremented_requests:
+            requests.post('http://'+config['BASE_URL']+'/api/request/play_counter_increment/'+str(req))
+        incremented_requests = []
         time.sleep(0.5)
+
 
     #for line in video_file:
     #    player.set_fullscreen(True)
