@@ -10,7 +10,7 @@ mkdir -p  videos;
 
 while :
 do
-  curl -X GET -s $BASE_URL/api/request/all \
+  curl -X GET -s $BASE_URL/api/request/rpi/$RPI_ID \
     | jq -rc '.[] | .locname+"-"+(.userid|tostring)+"-"+(.id|tostring)+"-"+.videoname' \
     | sed 's/ /_/g' \
     | awk '!seen[$0]++' > video_list_temp

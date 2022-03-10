@@ -15,6 +15,9 @@ do
   #
   #    RETRIEVE GPS HERE
   #
+
+  # RETRIEVE ID
+
   
   LAT=$(printf '%s' "$p" | awk -F" " '{printf $1}')
   LON=$(printf '%s' "$p" | awk -F" " '{printf $2}')

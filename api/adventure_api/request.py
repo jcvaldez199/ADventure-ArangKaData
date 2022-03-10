@@ -165,3 +165,14 @@ def play_counter_increment(id):
         params = {'id':id}
         db_execute(command, params, True)
         return ('', 204)
+
+@bp.route('/rpi/<int:id>')
+def from_rpi(id):
+    command = """SELECT request.id, request.locname, request.videoname, request.userid, request.routename FROM request
+                 INNER JOIN rpi ON rpi.routename = request.routename
+                 WHERE request.approved = True AND rpi.id = %(id)s
+              """
+    params = {'id':id}
+    requests = db_execute(command, params).fetchall()
+    return jsonify(requests)
+
