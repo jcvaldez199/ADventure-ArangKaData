@@ -8,12 +8,15 @@
     "@testing-library/user-event": "^12.8.3",
     "axios": "^0.21.4",
     "bootstrap": "4.6",
+    "chonky": "^2.3.2",
+    "chonky-icon-fontawesome": "^2.3.2",
     "leaflet": "^1.7.1",
     "react": "^17.0.2",
     "react-bootstrap": "^1.6.4",
     "react-dom": "^17.0.2",
     "react-leaflet": "^3.2.2",
     "react-leaflet-draw": "^0.19.8",
+    "react-modal-video": "^1.2.8",
     "react-player": "^2.9.0",
     "react-router-dom": "^5.3.0",
     "react-scripts": "4.0.3",
@@ -39,6 +42,7 @@
   ],
   "proxy": "http://0.0.0.0:5000",
   "devDependencies": {
+    "@babel/plugin-proposal-decorators": "^7.17.8",
     "@types/leaflet": "^1.7.5"
   }
 }

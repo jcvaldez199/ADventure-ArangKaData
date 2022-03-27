@@ -26,7 +26,7 @@ def index():
 def send_route_points(routename):
     ret_pts = []
     for x in get_gps_collection().find({"routename":routename},{"_id":0,"loc":1}):
-        ret_pts.append(x["loc"])
+        ret_pts.append(x["loc"][::-1])
     return jsonify(ret_pts)
 
 

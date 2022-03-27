@@ -57,9 +57,9 @@ def upload_vid():
                       }
             db_execute(command, params, True)
             filename = secure_filename(file.filename)
-            return jsonify({'filename':fname,'thumbnail':thumbnailpath})
+            return jsonify(params)
         else:
-            return jsonify(error=str("Invalid file")), 404
+            return "Invalid file", 404
 
 def save_video(file):
     filename = secure_filename(file.filename)
@@ -115,12 +115,14 @@ def display_vid(filename):
         return redirect(gen_url, code=302)
     return send_file(current_app.config['VIDEOS']+"/"+secure_filename(filename))
 
-@bp.route('/delete/<filename>')
+@bp.route('/delete/<filename>', methods=['POST'])
 @jwt_required()
 def delete_vid(filename):
 
     """ Deletes a video via filename
+        TODO: Delete the actual file as well
     """
+    error = None
 
     if eval(current_app.config["USE_S3"]):
         s3 = boto3.client('s3')
@@ -129,12 +131,19 @@ def delete_vid(filename):
     fname = secure_filename(filename)
     command = """ DELETE FROM video
                   WHERE filename = %(fname)s AND
+                  NOT EXISTS (SELECT * FROM request WHERE request.videoname = video.filename) AND
                   userid = %(userid)s;
               """
     params = {'fname':fname,
               'userid':get_jwt_identity()}
-    db_execute(command, params, True)
-    return '',200
+    curs = db_execute(command, params, True)
+    if curs.rowcount < 1:
+        error = "A request currently contains this video, please delete all requests with this video first."
+
+    if error:
+        return error,406
+
+    return jsonify({'fname':filename})
 
 @bp.route('/rename/<filename>')
 @jwt_required()

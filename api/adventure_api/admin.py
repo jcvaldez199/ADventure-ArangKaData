@@ -151,9 +151,9 @@ def upload_gpx_file():
             return redirect(request.url)
         else:
             routename = file.filename
-            filepath = rpiute(file)
+            filepath = save_route(file)
             insertlist = generate_points(filepath, routename)
-            ret_pts = [ x["loc"] for x in insertlist ]
+            ret_pts = [ x["loc"][::-1] for x in insertlist ]
             center=ret_pts[len(ret_pts)//2]
             return render_template('admin/showroute.html',coords=ret_pts, center=center)
     return render_template('admin/route.html')

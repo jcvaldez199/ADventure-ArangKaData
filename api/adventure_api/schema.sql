@@ -1,3 +1,4 @@
+DROP VIEW IF EXISTS metrics;
 DROP TABLE IF EXISTS request;
 DROP TABLE IF EXISTS gpspoint;
 DROP TABLE IF EXISTS rpi;
@@ -10,6 +11,7 @@ DROP TABLE IF EXISTS admin;
 CREATE TABLE customer (
   id SERIAL PRIMARY KEY,
   username VARCHAR(15) UNIQUE NOT NULL,
+  date_joined TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   password TEXT NOT NULL
 );
 
@@ -83,6 +85,11 @@ CREATE TABLE request (
   FOREIGN KEY (userid, routename, locname) REFERENCES location (userid, routename, locname)
 );
 
+CREATE VIEW metrics AS
+    SELECT c.username, r.userid, SUM(r.play_counter) AS vid_count_total, COUNT(r.*) AS request_count
+FROM request r FULL OUTER JOIN customer c ON c.id = r.userid
+GROUP BY username, userid;
+
 INSERT INTO customer (username, password) VALUES ('test', 'test');
 INSERT INTO customer (username, password) VALUES ('test2', 'test2');
 INSERT INTO admin (username, password) VALUES ('admin', 'admin');
@@ -105,7 +112,7 @@ INSERT INTO location (userid, locname, routename, startindex, lastindex) VALUES 
 INSERT INTO video (filename, userid, thumbnail) VALUES ('minecraft.mp4', 1, 'minecraft_thumbnail.jpeg');
 INSERT INTO video (filename, userid, thumbnail) VALUES ('fumo_balls.mp4', 2, 'fumo_balls_thumbnail.jpeg');
 INSERT INTO video (filename, userid, thumbnail) VALUES ('fumo_balls.mp4', 1, 'fumo_balls_thumbnail.jpeg');
-INSERT INTO video (filename, userid, thumbnail) VALUES ('cow.mp4', 1, 'cow_thumbnail.jpeg');
+--INSERT INTO video (filename, userid, thumbnail) VALUES ('cow.mp4', 1, 'cow_thumbnail.jpeg');
 
 INSERT INTO request (routename, userid, videoname, locname, approved) VALUES ('EDSA', 1, 'minecraft.mp4', 'Entire', True);
 INSERT INTO request (routename, userid, videoname, locname, approved) VALUES ('CRMT', 1, 'minecraft.mp4', 'Entire', False);
@@ -113,6 +120,6 @@ INSERT INTO request (routename, userid, videoname, locname, approved) VALUES ('C
 --INSERT INTO request (routename, userid, videoname, locname, approved) VALUES ('CRMT', 2, 'fumo_balls.mp4', 'CRMT Generic', False);
 
 INSERT INTO request (routename, userid, videoname, locname, approved) VALUES ('EDSA', 1, 'fumo_balls.mp4', 'EDSA Test Location 1', True);
-INSERT INTO request (routename, userid, videoname, locname, approved) VALUES ('EDSA', 1, 'cow.mp4', 'EDSA Test Location 2', True);
+--INSERT INTO request (routename, userid, videoname, locname, approved) VALUES ('EDSA', 1, 'cow.mp4', 'EDSA Test Location 2', True);
 
 INSERT INTO gpspoint (id, course) VALUES (1, 20);

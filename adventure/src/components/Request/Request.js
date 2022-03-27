@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
-import { Button, Form, Tabs, Tab, Row, Col, Container, Accordion, Card, Table } from 'react-bootstrap'
+import { Fade, Button, Form, Tabs, Tab, Row, Col, Container, Accordion, Card, Table } from 'react-bootstrap'
 import ReactPlayer from "react-player";
 import SendForm from './SendForm'
 import { RequestSendUrl, RequestUrlBase, RequestEditUrl, VideoDisplayUrl } from '../config'
@@ -26,6 +26,8 @@ function Request() {
 
   return (
     <div>
+    <Fade appear={true} in={true}>
+    <div>
       <Container fluid>
         <Tabs 
           defaultActiveKey="pending" 
@@ -49,6 +51,8 @@ function Request() {
           </Tab>
         </Tabs>
       </Container>
+    </div>
+    </Fade>
     </div>
   );
 };
