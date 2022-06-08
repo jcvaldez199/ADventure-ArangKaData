@@ -168,7 +168,7 @@ def commit_route():
         else:
             routename = request.form['routename']
             coords = ast.literal_eval(request.form["coords"])
-            insertlist = [{"loc":point, "routename":routename} for point in coords ]
+            insertlist = [{"loc":point[::-1], "routename":routename} for point in coords ]
             get_gps_collection().insert_many(insertlist)
 
             # insert route

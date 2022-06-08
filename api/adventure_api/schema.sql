@@ -114,12 +114,13 @@ INSERT INTO video (filename, userid, thumbnail) VALUES ('fumo_balls.mp4', 2, 'fu
 INSERT INTO video (filename, userid, thumbnail) VALUES ('fumo_balls.mp4', 1, 'fumo_balls_thumbnail.jpeg');
 --INSERT INTO video (filename, userid, thumbnail) VALUES ('cow.mp4', 1, 'cow_thumbnail.jpeg');
 
-INSERT INTO request (routename, userid, videoname, locname, approved) VALUES ('EDSA', 1, 'minecraft.mp4', 'Entire', True);
-INSERT INTO request (routename, userid, videoname, locname, approved) VALUES ('CRMT', 1, 'minecraft.mp4', 'Entire', False);
---INSERT INTO request (routename, userid, videoname, locname, approved) VALUES ('EDSA', 2, 'fumo_balls.mp4', 'EDSA Generic', False);
---INSERT INTO request (routename, userid, videoname, locname, approved) VALUES ('CRMT', 2, 'fumo_balls.mp4', 'CRMT Generic', False);
+INSERT INTO request (routename, userid, videoname, locname, approved, date_decision, remarks) VALUES ('EDSA', 1, 'minecraft.mp4', 'Entire', True, CURRENT_TIMESTAMP, 'ok request');
+INSERT INTO request (routename, userid, videoname, locname, approved, date_decision, remarks) VALUES ('CRMT', 1, 'minecraft.mp4', 'Entire', False, CURRENT_TIMESTAMP, 'Please change the video');
+INSERT INTO request (routename, userid, videoname, locname, approved) VALUES ('EDSA', 2, 'fumo_balls.mp4', 'EDSA Generic', False);
+INSERT INTO request (routename, userid, videoname, locname, approved) VALUES ('EDSA', 1, 'minecraft.mp4', 'Entire', False);
+INSERT INTO request (routename, userid, videoname, locname, approved) VALUES ('CRMT', 2, 'fumo_balls.mp4', 'CRMT Generic', False);
 
-INSERT INTO request (routename, userid, videoname, locname, approved) VALUES ('EDSA', 1, 'fumo_balls.mp4', 'EDSA Test Location 1', True);
+INSERT INTO request (routename, userid, videoname, locname, approved, date_decision, remarks) VALUES ('EDSA', 1, 'fumo_balls.mp4', 'EDSA Test Location 1', True, CURRENT_TIMESTAMP, 'good to go');
 --INSERT INTO request (routename, userid, videoname, locname, approved) VALUES ('EDSA', 1, 'cow.mp4', 'EDSA Test Location 2', True);
 
 INSERT INTO gpspoint (id, course) VALUES (1, 20);
